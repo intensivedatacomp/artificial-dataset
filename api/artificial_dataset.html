@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>artificial_dataset package &#8212; artificial-dataset 0.1.1 documentation</title>
+    <title>artificial_dataset package &#8212; artificial-dataset 0.2.0 documentation</title>
   
   
   
@@ -38,7 +38,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=0790524f97105ba85085" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085" />
 
-    <script src="../_static/documentation_options.js?v=a58bc63e"></script>
+    <script src="../_static/documentation_options.js?v=938c9ccc"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'api/artificial_dataset';</script>
@@ -48,7 +48,7 @@
     <link rel="prev" title="Modules" href="modules.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.1.1" />
+  <meta name="docsearch:version" content="0.2.0" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -116,7 +116,7 @@
   
   
   
-    <p class="title logo__title">artificial-dataset 0.1.1 documentation</p>
+    <p class="title logo__title">artificial-dataset 0.2.0 documentation</p>
   
 </a></div>
     
@@ -377,12 +377,13 @@
 <p>Anomaly detection dataset generator built from signal components.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="artificial_dataset.anomaly.make_anomaly_dataset">
-<span class="sig-prename descclassname"><span class="pre">artificial_dataset.anomaly.</span></span><span class="sig-name descname"><span class="pre">make_anomaly_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anomaly_fraction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_std</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0.0,</span> <span class="pre">6.283185307179586)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anomaly_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/artificial_dataset/anomaly.html#make_anomaly_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#artificial_dataset.anomaly.make_anomaly_dataset" title="Link to this definition">#</a></dt>
-<dd><p>Generate an anomaly detection dataset from signal components.</p>
+<span class="sig-prename descclassname"><span class="pre">artificial_dataset.anomaly.</span></span><span class="sig-name descname"><span class="pre">make_anomaly_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anomaly_fraction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_std</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0.0,</span> <span class="pre">6.283185307179586)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anomaly_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/artificial_dataset/anomaly.html#make_anomaly_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#artificial_dataset.anomaly.make_anomaly_dataset" title="Link to this definition">#</a></dt>
+<dd><p>Generate a multi-channel anomaly detection dataset from signal components.</p>
 <p>Normal samples follow a smooth signal built from a combination of
 linear, polynomial, and sinusoidal components with small Gaussian
 noise.  Anomalous samples are drawn from the same <em>x</em> distribution
-but deviate from the clean signal by a large noise term.</p>
+but deviate from the clean signal by a large noise term on every
+channel simultaneously.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -392,23 +393,26 @@ but deviate from the clean signal by a large noise term.</p>
 samples.</p></li>
 <li><p><strong>x_range</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span>) – Closed interval <code class="docutils literal notranslate"><span class="pre">[min,</span> <span class="pre">max]</span></code> from which input values are drawn
 uniformly.</p></li>
-<li><p><strong>signal_params</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Component configuration for the normal signal.  Passed directly to
-<code class="xref py py-func docutils literal notranslate"><span class="pre">compose()</span></code>.  When <em>None</em>,
-a default sinusoidal + linear signal is used.</p></li>
+<li><p><strong>channel_params</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – One signal-parameter dict per channel.  Each dict is passed
+directly to <code class="xref py py-func docutils literal notranslate"><span class="pre">compose()</span></code>.
+When <em>None</em>, a single default sinusoidal + linear channel is
+used.</p></li>
 <li><p><strong>anomaly_scale</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Multiplier applied to <em>noise_std</em> for anomalous samples, so an
 anomaly deviates from the clean signal by roughly
-<code class="docutils literal notranslate"><span class="pre">anomaly_scale</span> <span class="pre">*</span> <span class="pre">noise_std</span></code>.</p></li>
+<code class="docutils literal notranslate"><span class="pre">anomaly_scale</span> <span class="pre">*</span> <span class="pre">noise_std</span></code> on every channel.</p></li>
 <li><p><strong>random_state</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Seed passed to <code class="xref py py-func docutils literal notranslate"><span class="pre">torch.manual_seed()</span></code> for reproducibility.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>]</span></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>]</span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
-<li><p><strong>X</strong> (<em>torch.Tensor, shape (n_samples, 2)</em>) – Feature matrix.  Column 0 contains the sampled <em>x</em> values; column 1
-contains the observed signal value.</p></li>
-<li><p><strong>y</strong> (<em>torch.Tensor, shape (n_samples,)</em>) – Labels: <code class="docutils literal notranslate"><span class="pre">0</span></code> for normal samples, <code class="docutils literal notranslate"><span class="pre">1</span></code> for anomalies,
+<li><p><strong>x</strong> (<em>torch.Tensor, shape (n_samples,)</em>) – Sampled input coordinates; intended for plotting only and not
+required during classification.</p></li>
+<li><p><strong>y</strong> (<em>torch.Tensor, shape (n_samples, n_channels)</em>) – Observed signal values.  Column <em>c</em> corresponds to
+<code class="docutils literal notranslate"><span class="pre">channel_params[c]</span></code>.</p></li>
+<li><p><strong>labels</strong> (<em>torch.Tensor, shape (n_samples,)</em>) – Class labels: <code class="docutils literal notranslate"><span class="pre">0</span></code> for normal samples, <code class="docutils literal notranslate"><span class="pre">1</span></code> for anomalies,
 dtype <code class="docutils literal notranslate"><span class="pre">torch.long</span></code>.</p></li>
 </ul>
 </p>
@@ -418,10 +422,12 @@ dtype <code class="docutils literal notranslate"><span class="pre">torch.long</s
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">make_anomaly_dataset</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">anomaly_fraction</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span>
-<span class="go">(torch.Size([500, 2]), torch.Size([500]))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">int</span><span class="p">((</span><span class="n">y</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">make_anomaly_dataset</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">n_samples</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">anomaly_fraction</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">labels</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(torch.Size([500]), torch.Size([500, 1]), torch.Size([500]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">int</span><span class="p">((</span><span class="n">labels</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
 <span class="go">50</span>
 </pre></div>
 </div>
@@ -888,12 +894,13 @@ same dict without interfering with signal generation.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="artificial_dataset.make_anomaly_dataset">
-<span class="sig-prename descclassname"><span class="pre">artificial_dataset.</span></span><span class="sig-name descname"><span class="pre">make_anomaly_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anomaly_fraction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_std</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0.0,</span> <span class="pre">6.283185307179586)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anomaly_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/artificial_dataset/anomaly.html#make_anomaly_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#artificial_dataset.make_anomaly_dataset" title="Link to this definition">#</a></dt>
-<dd><p>Generate an anomaly detection dataset from signal components.</p>
+<span class="sig-prename descclassname"><span class="pre">artificial_dataset.</span></span><span class="sig-name descname"><span class="pre">make_anomaly_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anomaly_fraction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_std</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0.0,</span> <span class="pre">6.283185307179586)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anomaly_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/artificial_dataset/anomaly.html#make_anomaly_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#artificial_dataset.make_anomaly_dataset" title="Link to this definition">#</a></dt>
+<dd><p>Generate a multi-channel anomaly detection dataset from signal components.</p>
 <p>Normal samples follow a smooth signal built from a combination of
 linear, polynomial, and sinusoidal components with small Gaussian
 noise.  Anomalous samples are drawn from the same <em>x</em> distribution
-but deviate from the clean signal by a large noise term.</p>
+but deviate from the clean signal by a large noise term on every
+channel simultaneously.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -903,23 +910,26 @@ but deviate from the clean signal by a large noise term.</p>
 samples.</p></li>
 <li><p><strong>x_range</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span>) – Closed interval <code class="docutils literal notranslate"><span class="pre">[min,</span> <span class="pre">max]</span></code> from which input values are drawn
 uniformly.</p></li>
-<li><p><strong>signal_params</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Component configuration for the normal signal.  Passed directly to
-<code class="xref py py-func docutils literal notranslate"><span class="pre">compose()</span></code>.  When <em>None</em>,
-a default sinusoidal + linear signal is used.</p></li>
+<li><p><strong>channel_params</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – One signal-parameter dict per channel.  Each dict is passed
+directly to <code class="xref py py-func docutils literal notranslate"><span class="pre">compose()</span></code>.
+When <em>None</em>, a single default sinusoidal + linear channel is
+used.</p></li>
 <li><p><strong>anomaly_scale</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Multiplier applied to <em>noise_std</em> for anomalous samples, so an
 anomaly deviates from the clean signal by roughly
-<code class="docutils literal notranslate"><span class="pre">anomaly_scale</span> <span class="pre">*</span> <span class="pre">noise_std</span></code>.</p></li>
+<code class="docutils literal notranslate"><span class="pre">anomaly_scale</span> <span class="pre">*</span> <span class="pre">noise_std</span></code> on every channel.</p></li>
 <li><p><strong>random_state</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Seed passed to <code class="xref py py-func docutils literal notranslate"><span class="pre">torch.manual_seed()</span></code> for reproducibility.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>]</span></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>]</span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
-<li><p><strong>X</strong> (<em>torch.Tensor, shape (n_samples, 2)</em>) – Feature matrix.  Column 0 contains the sampled <em>x</em> values; column 1
-contains the observed signal value.</p></li>
-<li><p><strong>y</strong> (<em>torch.Tensor, shape (n_samples,)</em>) – Labels: <code class="docutils literal notranslate"><span class="pre">0</span></code> for normal samples, <code class="docutils literal notranslate"><span class="pre">1</span></code> for anomalies,
+<li><p><strong>x</strong> (<em>torch.Tensor, shape (n_samples,)</em>) – Sampled input coordinates; intended for plotting only and not
+required during classification.</p></li>
+<li><p><strong>y</strong> (<em>torch.Tensor, shape (n_samples, n_channels)</em>) – Observed signal values.  Column <em>c</em> corresponds to
+<code class="docutils literal notranslate"><span class="pre">channel_params[c]</span></code>.</p></li>
+<li><p><strong>labels</strong> (<em>torch.Tensor, shape (n_samples,)</em>) – Class labels: <code class="docutils literal notranslate"><span class="pre">0</span></code> for normal samples, <code class="docutils literal notranslate"><span class="pre">1</span></code> for anomalies,
 dtype <code class="docutils literal notranslate"><span class="pre">torch.long</span></code>.</p></li>
 </ul>
 </p>
@@ -929,10 +939,12 @@ dtype <code class="docutils literal notranslate"><span class="pre">torch.long</s
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">make_anomaly_dataset</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">anomaly_fraction</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span>
-<span class="go">(torch.Size([500, 2]), torch.Size([500]))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">int</span><span class="p">((</span><span class="n">y</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">make_anomaly_dataset</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">n_samples</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">anomaly_fraction</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">labels</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(torch.Size([500]), torch.Size([500, 1]), torch.Size([500]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">int</span><span class="p">((</span><span class="n">labels</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
 <span class="go">50</span>
 </pre></div>
 </div>

@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Usage &#8212; artificial-dataset 0.1.1 documentation</title>
+    <title>Usage &#8212; artificial-dataset 0.2.0 documentation</title>
   
   
   
@@ -38,7 +38,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=0790524f97105ba85085" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085" />
 
-    <script src="_static/documentation_options.js?v=a58bc63e"></script>
+    <script src="_static/documentation_options.js?v=938c9ccc"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'usage';</script>
@@ -49,7 +49,7 @@
     <link rel="prev" title="Installation" href="installation.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.1.1" />
+  <meta name="docsearch:version" content="0.2.0" />
   
     
     <script src="_static/searchtools.js"></script>
@@ -117,7 +117,7 @@
   
   
   
-    <p class="title logo__title">artificial-dataset 0.1.1 documentation</p>
+    <p class="title logo__title">artificial-dataset 0.2.0 documentation</p>
   
 </a></div>
     
@@ -364,8 +364,10 @@
                   
   <section id="usage">
 <h1>Usage<a class="headerlink" href="#usage" title="Link to this heading">#</a></h1>
-<p>Both generators return <code class="docutils literal notranslate"><span class="pre">(X,</span> <span class="pre">y)</span></code> pairs of <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.Tensor</span></code> objects that
-plug directly into a PyTorch <code class="xref py py-class docutils literal notranslate"><span class="pre">DataLoader</span></code>.</p>
+<p>Both generators return <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.Tensor</span></code> objects that plug directly into a
+PyTorch <code class="xref py py-class docutils literal notranslate"><span class="pre">DataLoader</span></code>.  The anomaly generator returns
+a three-tuple <code class="docutils literal notranslate"><span class="pre">(x,</span> <span class="pre">y,</span> <span class="pre">labels)</span></code>; the classification generator returns a
+two-tuple <code class="docutils literal notranslate"><span class="pre">(X,</span> <span class="pre">y)</span></code>.</p>
 <section id="classification">
 <h2>Classification<a class="headerlink" href="#classification" title="Link to this heading">#</a></h2>
 <p><a class="reference internal" href="api/artificial_dataset.html#artificial_dataset.make_classification" title="artificial_dataset.make_classification"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_classification()</span></code></a> produces a labelled multi-class
@@ -388,24 +390,51 @@ dataset.  Each class follows a distinct combination of signal components.</p>
 <p><a class="reference internal" href="api/artificial_dataset.html#artificial_dataset.make_anomaly_dataset" title="artificial_dataset.make_anomaly_dataset"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_anomaly_dataset()</span></code></a> produces a dataset of normal
 samples (label <code class="docutils literal notranslate"><span class="pre">0</span></code>) and anomalous samples (label <code class="docutils literal notranslate"><span class="pre">1</span></code>).  Anomalies deviate
 from the clean signal by a large noise term controlled by <code class="docutils literal notranslate"><span class="pre">anomaly_scale</span></code>.</p>
+<p>The function returns three tensors:</p>
+<ul class="simple">
+<li><p><strong>x</strong> — shape <code class="docutils literal notranslate"><span class="pre">(n_samples,)</span></code>: sampled input coordinates, intended for
+plotting only and not required during classification.</p></li>
+<li><p><strong>y</strong> — shape <code class="docutils literal notranslate"><span class="pre">(n_samples,</span> <span class="pre">n_channels)</span></code>: observed signal values, one
+column per channel.</p></li>
+<li><p><strong>labels</strong> — shape <code class="docutils literal notranslate"><span class="pre">(n_samples,)</span></code>, dtype <code class="docutils literal notranslate"><span class="pre">torch.long</span></code>: <code class="docutils literal notranslate"><span class="pre">0</span></code> for normal
+samples, <code class="docutils literal notranslate"><span class="pre">1</span></code> for anomalies.</p></li>
+</ul>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">artificial_dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_anomaly_dataset</span>
 
-<span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">make_anomaly_dataset</span><span class="p">(</span>
+<span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">make_anomaly_dataset</span><span class="p">(</span>
     <span class="n">n_samples</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
     <span class="n">anomaly_fraction</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
     <span class="n">noise_std</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
     <span class="n">anomaly_scale</span><span class="o">=</span><span class="mf">6.0</span><span class="p">,</span>
     <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="c1"># X: shape (1000, 2)  — column 0 is x, column 1 is the observed signal</span>
-<span class="c1"># y: shape (1000,)    — 0 for normal, 1 for anomaly</span>
+<span class="c1"># x:      shape (1000,)     — input coordinates for plotting</span>
+<span class="c1"># y:      shape (1000, 1)   — observed signal (one channel by default)</span>
+<span class="c1"># labels: shape (1000,)     — 0 for normal, 1 for anomaly</span>
+</pre></div>
+</div>
+<p>Pass a list with more than one entry to <code class="docutils literal notranslate"><span class="pre">channel_params</span></code> to get multiple
+channels.  Anomalies are injected with the same scaled noise on every channel,
+so the label is consistent across the whole row:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">channel_params</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span><span class="s2">&quot;sinusoidal&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;amplitude&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;frequency&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;phase&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">}},</span>
+    <span class="p">{</span><span class="s2">&quot;linear&quot;</span><span class="p">:</span>     <span class="p">{</span><span class="s2">&quot;slope&quot;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span> <span class="s2">&quot;intercept&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">}},</span>
+<span class="p">]</span>
+
+<span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">make_anomaly_dataset</span><span class="p">(</span>
+    <span class="n">n_samples</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span>
+    <span class="n">anomaly_fraction</span><span class="o">=</span><span class="mf">0.08</span><span class="p">,</span>
+    <span class="n">channel_params</span><span class="o">=</span><span class="n">channel_params</span><span class="p">,</span>
+    <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="c1"># y: shape (600, 2)  — two independent signal channels</span>
 </pre></div>
 </div>
 </section>
 <section id="custom-signal-shapes">
 <h2>Custom signal shapes<a class="headerlink" href="#custom-signal-shapes" title="Link to this heading">#</a></h2>
-<p>Both generators accept a <code class="docutils literal notranslate"><span class="pre">class_params</span></code> / <code class="docutils literal notranslate"><span class="pre">signal_params</span></code> argument that
-controls which signal components are superimposed.  The <code class="docutils literal notranslate"><span class="pre">params</span></code> dict may
+<p>Both generators accept a <code class="docutils literal notranslate"><span class="pre">class_params</span></code> / <code class="docutils literal notranslate"><span class="pre">channel_params</span></code> argument that
+controls which signal components are superimposed.  Each params dict may
 contain any combination of <code class="docutils literal notranslate"><span class="pre">&quot;linear&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;polynomial&quot;</span></code>, and <code class="docutils literal notranslate"><span class="pre">&quot;sinusoidal&quot;</span></code>
 keys:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
@@ -451,9 +480,9 @@ construction modes are available.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">artificial_dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClassifierMetrics</span><span class="p">,</span> <span class="n">make_anomaly_dataset</span>
 
-<span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">make_anomaly_dataset</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">anomaly_fraction</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">make_anomaly_dataset</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">anomaly_fraction</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-<span class="n">true_indices</span> <span class="o">=</span> <span class="p">(</span><span class="n">y</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">as_tuple</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">true_indices</span> <span class="o">=</span> <span class="p">(</span><span class="n">labels</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">as_tuple</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 <span class="n">pred_indices</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span> <span class="mi">27</span><span class="p">,</span> <span class="mi">88</span><span class="p">,</span> <span class="mi">142</span><span class="p">])</span>  <span class="c1"># your model&#39;s detections</span>
 
 <span class="n">m</span> <span class="o">=</span> <span class="n">ClassifierMetrics</span><span class="o">.</span><span class="n">from_anomaly_indices</span><span class="p">(</span>

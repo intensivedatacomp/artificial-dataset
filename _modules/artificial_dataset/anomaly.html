@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>artificial_dataset.anomaly &#8212; artificial-dataset 0.1.1 documentation</title>
+    <title>artificial_dataset.anomaly &#8212; artificial-dataset 0.2.0 documentation</title>
   
   
   
@@ -37,7 +37,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=0790524f97105ba85085" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085" />
 
-    <script src="../../_static/documentation_options.js?v=a58bc63e"></script>
+    <script src="../../_static/documentation_options.js?v=938c9ccc"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/artificial_dataset/anomaly';</script>
@@ -46,7 +46,7 @@
     <link rel="search" title="Search" href="../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.1.1" />
+  <meta name="docsearch:version" content="0.2.0" />
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -114,7 +114,7 @@
   
   
   
-    <p class="title logo__title">artificial-dataset 0.1.1 documentation</p>
+    <p class="title logo__title">artificial-dataset 0.2.0 documentation</p>
   
 </a></div>
     
@@ -354,10 +354,12 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">artificial_dataset._components</span><span class="w"> </span><span class="kn">import</span> <span class="n">compose</span><span class="p">,</span> <span class="n">gaussian_noise</span>
 
-<span class="n">_DEFAULT_SIGNAL_PARAMS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;sinusoidal&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;amplitude&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;frequency&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;phase&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">},</span>
-    <span class="s2">&quot;linear&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;slope&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s2">&quot;intercept&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">},</span>
-<span class="p">}</span>
+<span class="n">_DEFAULT_CHANNEL_PARAMS</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;sinusoidal&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;amplitude&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;frequency&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;phase&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">},</span>
+        <span class="s2">&quot;linear&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;slope&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s2">&quot;intercept&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">},</span>
+    <span class="p">}</span>
+<span class="p">]</span>
 
 
 <div class="viewcode-block" id="make_anomaly_dataset">
@@ -367,16 +369,17 @@
     <span class="n">anomaly_fraction</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
     <span class="n">noise_std</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
     <span class="n">x_range</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">),</span>
-    <span class="n">signal_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">channel_params</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">anomaly_scale</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">6.0</span><span class="p">,</span>
     <span class="n">random_state</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate an anomaly detection dataset from signal components.</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate a multi-channel anomaly detection dataset from signal components.</span>
 
 <span class="sd">    Normal samples follow a smooth signal built from a combination of</span>
 <span class="sd">    linear, polynomial, and sinusoidal components with small Gaussian</span>
 <span class="sd">    noise.  Anomalous samples are drawn from the same *x* distribution</span>
-<span class="sd">    but deviate from the clean signal by a large noise term.</span>
+<span class="sd">    but deviate from the clean signal by a large noise term on every</span>
+<span class="sd">    channel simultaneously.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -390,24 +393,28 @@
 <span class="sd">    x_range : tuple[float, float], optional</span>
 <span class="sd">        Closed interval ``[min, max]`` from which input values are drawn</span>
 <span class="sd">        uniformly.</span>
-<span class="sd">    signal_params : dict[str, Any] | None, optional</span>
-<span class="sd">        Component configuration for the normal signal.  Passed directly to</span>
-<span class="sd">        :func:`~artificial_dataset._components.compose`.  When *None*,</span>
-<span class="sd">        a default sinusoidal + linear signal is used.</span>
+<span class="sd">    channel_params : list[dict[str, Any]] | None, optional</span>
+<span class="sd">        One signal-parameter dict per channel.  Each dict is passed</span>
+<span class="sd">        directly to :func:`~artificial_dataset._components.compose`.</span>
+<span class="sd">        When *None*, a single default sinusoidal + linear channel is</span>
+<span class="sd">        used.</span>
 <span class="sd">    anomaly_scale : float, optional</span>
 <span class="sd">        Multiplier applied to *noise_std* for anomalous samples, so an</span>
 <span class="sd">        anomaly deviates from the clean signal by roughly</span>
-<span class="sd">        ``anomaly_scale * noise_std``.</span>
+<span class="sd">        ``anomaly_scale * noise_std`` on every channel.</span>
 <span class="sd">    random_state : int | None, optional</span>
 <span class="sd">        Seed passed to :func:`torch.manual_seed` for reproducibility.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    X : torch.Tensor, shape (n_samples, 2)</span>
-<span class="sd">        Feature matrix.  Column 0 contains the sampled *x* values; column 1</span>
-<span class="sd">        contains the observed signal value.</span>
-<span class="sd">    y : torch.Tensor, shape (n_samples,)</span>
-<span class="sd">        Labels: ``0`` for normal samples, ``1`` for anomalies,</span>
+<span class="sd">    x : torch.Tensor, shape (n_samples,)</span>
+<span class="sd">        Sampled input coordinates; intended for plotting only and not</span>
+<span class="sd">        required during classification.</span>
+<span class="sd">    y : torch.Tensor, shape (n_samples, n_channels)</span>
+<span class="sd">        Observed signal values.  Column *c* corresponds to</span>
+<span class="sd">        ``channel_params[c]``.</span>
+<span class="sd">    labels : torch.Tensor, shape (n_samples,)</span>
+<span class="sd">        Class labels: ``0`` for normal samples, ``1`` for anomalies,</span>
 <span class="sd">        dtype ``torch.long``.</span>
 
 <span class="sd">    Raises</span>
@@ -417,10 +424,12 @@
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; X, y = make_anomaly_dataset(n_samples=500, anomaly_fraction=0.1, random_state=0)</span>
-<span class="sd">    &gt;&gt;&gt; X.shape, y.shape</span>
-<span class="sd">    (torch.Size([500, 2]), torch.Size([500]))</span>
-<span class="sd">    &gt;&gt;&gt; int((y == 1).sum())</span>
+<span class="sd">    &gt;&gt;&gt; x, y, labels = make_anomaly_dataset(</span>
+<span class="sd">    ...     n_samples=500, anomaly_fraction=0.1, random_state=0</span>
+<span class="sd">    ... )</span>
+<span class="sd">    &gt;&gt;&gt; x.shape, y.shape, labels.shape</span>
+<span class="sd">    (torch.Size([500]), torch.Size([500, 1]), torch.Size([500]))</span>
+<span class="sd">    &gt;&gt;&gt; int((labels == 1).sum())</span>
 <span class="sd">    50</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="mf">0.0</span> <span class="o">&lt;</span> <span class="n">anomaly_fraction</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">:</span>
@@ -429,27 +438,31 @@
     <span class="k">if</span> <span class="n">random_state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="n">random_state</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">signal_params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">signal_params</span> <span class="o">=</span> <span class="n">_DEFAULT_SIGNAL_PARAMS</span>
+    <span class="k">if</span> <span class="n">channel_params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">channel_params</span> <span class="o">=</span> <span class="n">_DEFAULT_CHANNEL_PARAMS</span>
 
     <span class="n">n_anomalies</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">n_samples</span> <span class="o">*</span> <span class="n">anomaly_fraction</span><span class="p">)</span>
     <span class="n">n_normal</span> <span class="o">=</span> <span class="n">n_samples</span> <span class="o">-</span> <span class="n">n_anomalies</span>
     <span class="n">x_min</span><span class="p">,</span> <span class="n">x_max</span> <span class="o">=</span> <span class="n">x_range</span>
 
     <span class="n">x_normal</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">n_normal</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">x_max</span> <span class="o">-</span> <span class="n">x_min</span><span class="p">)</span> <span class="o">+</span> <span class="n">x_min</span>
-    <span class="n">signal_normal</span> <span class="o">=</span> <span class="n">compose</span><span class="p">(</span><span class="n">x_normal</span><span class="p">,</span> <span class="n">signal_params</span><span class="p">)</span> <span class="o">+</span> <span class="n">gaussian_noise</span><span class="p">(</span>
-        <span class="p">(</span><span class="n">n_normal</span><span class="p">,),</span> <span class="n">mean</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="n">noise_std</span>
-    <span class="p">)</span>
-
     <span class="n">x_anomaly</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">n_anomalies</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">x_max</span> <span class="o">-</span> <span class="n">x_min</span><span class="p">)</span> <span class="o">+</span> <span class="n">x_min</span>
-    <span class="n">signal_anomaly</span> <span class="o">=</span> <span class="n">compose</span><span class="p">(</span><span class="n">x_anomaly</span><span class="p">,</span> <span class="n">signal_params</span><span class="p">)</span> <span class="o">+</span> <span class="n">gaussian_noise</span><span class="p">(</span>
-        <span class="p">(</span><span class="n">n_anomalies</span><span class="p">,),</span> <span class="n">mean</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="n">noise_std</span> <span class="o">*</span> <span class="n">anomaly_scale</span>
-    <span class="p">)</span>
 
-    <span class="n">features</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span>
+    <span class="n">normal_channels</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">compose</span><span class="p">(</span><span class="n">x_normal</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span> <span class="o">+</span> <span class="n">gaussian_noise</span><span class="p">((</span><span class="n">n_normal</span><span class="p">,),</span> <span class="n">mean</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="n">noise_std</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">params</span> <span class="ow">in</span> <span class="n">channel_params</span>
+    <span class="p">]</span>
+    <span class="n">anomaly_channels</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">compose</span><span class="p">(</span><span class="n">x_anomaly</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+        <span class="o">+</span> <span class="n">gaussian_noise</span><span class="p">((</span><span class="n">n_anomalies</span><span class="p">,),</span> <span class="n">mean</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="n">noise_std</span> <span class="o">*</span> <span class="n">anomaly_scale</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">params</span> <span class="ow">in</span> <span class="n">channel_params</span>
+    <span class="p">]</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">x_normal</span><span class="p">,</span> <span class="n">x_anomaly</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span>
         <span class="p">[</span>
-            <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">x_normal</span><span class="p">,</span> <span class="n">signal_normal</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
-            <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">x_anomaly</span><span class="p">,</span> <span class="n">signal_anomaly</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">normal_channels</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">anomaly_channels</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
         <span class="p">],</span>
         <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
     <span class="p">)</span>
@@ -460,7 +473,8 @@
         <span class="p">],</span>
         <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="k">return</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span></div>
+    <span class="n">order</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">x</span><span class="p">[</span><span class="n">order</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="n">order</span><span class="p">],</span> <span class="n">labels</span><span class="p">[</span><span class="n">order</span><span class="p">]</span></div>
 
 </pre></div>
 

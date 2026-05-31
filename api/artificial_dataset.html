@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>artificial_dataset package &#8212; artificial-dataset 0.1.0 documentation</title>
+    <title>artificial_dataset package &#8212; artificial-dataset 0.1.1 documentation</title>
   
   
   
@@ -38,7 +38,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=0790524f97105ba85085" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085" />
 
-    <script src="../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../_static/documentation_options.js?v=a58bc63e"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'api/artificial_dataset';</script>
@@ -48,7 +48,7 @@
     <link rel="prev" title="Modules" href="modules.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.1.0" />
+  <meta name="docsearch:version" content="0.1.1" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -116,7 +116,7 @@
   
   
   
-    <p class="title logo__title">artificial-dataset 0.1.0 documentation</p>
+    <p class="title logo__title">artificial-dataset 0.1.1 documentation</p>
   
 </a></div>
     
@@ -482,6 +482,169 @@ contains the corresponding signal value (components + noise).</p></li>
 </dd></dl>
 
 </section>
+<section id="module-artificial_dataset.metrics">
+<span id="artificial-dataset-metrics-module"></span><h2>artificial_dataset.metrics module<a class="headerlink" href="#module-artificial_dataset.metrics" title="Link to this heading">#</a></h2>
+<p>Classifier evaluation metrics.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="artificial_dataset.metrics.ClassifierMetrics">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">artificial_dataset.metrics.</span></span><span class="sig-name descname"><span class="pre">ClassifierMetrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/artificial_dataset/metrics.html#ClassifierMetrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#artificial_dataset.metrics.ClassifierMetrics" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Evaluation metrics for a classifier.</p>
+<p>Computes accuracy, macro-averaged precision, recall, F1 score, and a
+confusion matrix from predicted and ground-truth class labels.</p>
+<p>Two construction modes are supported:</p>
+<ul class="simple">
+<li><p>Constructor — supply full <code class="docutils literal notranslate"><span class="pre">y_true</span></code> / <code class="docutils literal notranslate"><span class="pre">y_pred</span></code> label tensors directly.</p></li>
+<li><p><a class="reference internal" href="#artificial_dataset.metrics.ClassifierMetrics.from_anomaly_indices" title="artificial_dataset.metrics.ClassifierMetrics.from_anomaly_indices"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_anomaly_indices()</span></code></a> — supply the index positions of the positive
+(anomalous) samples as a <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.Tensor</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>; binary
+label vectors are built internally.</p></li>
+</ul>
+<p>All per-class metrics are macro-averaged over every class that appears in
+either <em>y_true</em> or <em>y_pred</em>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y_true</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></span>) – Ground-truth class labels, dtype <code class="docutils literal notranslate"><span class="pre">torch.long</span></code>.</p></li>
+<li><p><strong>y_pred</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></span>) – Predicted class labels, dtype <code class="docutils literal notranslate"><span class="pre">torch.long</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If <em>y_true</em> and <em>y_pred</em> differ in length, are not 1-D, or are empty.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y_true</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y_pred</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">ClassifierMetrics</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">round</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">accuracy</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="go">0.8</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">confusion_matrix</span>
+<span class="go">tensor([[2, 1],</span>
+<span class="go">        [0, 2]])</span>
+</pre></div>
+</div>
+<dl class="py property">
+<dt class="sig sig-object py" id="artificial_dataset.metrics.ClassifierMetrics.accuracy">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">accuracy</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#artificial_dataset.metrics.ClassifierMetrics.accuracy" title="Link to this definition">#</a></dt>
+<dd><p>Fraction of correctly classified samples.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Accuracy in <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="artificial_dataset.metrics.ClassifierMetrics.confusion_matrix">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">confusion_matrix</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tensor</span></span><a class="headerlink" href="#artificial_dataset.metrics.ClassifierMetrics.confusion_matrix" title="Link to this definition">#</a></dt>
+<dd><p>Confusion matrix of shape <code class="docutils literal notranslate"><span class="pre">(n_classes,</span> <span class="pre">n_classes)</span></code>.</p>
+<p>Entry <code class="docutils literal notranslate"><span class="pre">[i,</span> <span class="pre">j]</span></code> counts samples whose true class is <code class="docutils literal notranslate"><span class="pre">classes[i]</span></code>
+and predicted class is <code class="docutils literal notranslate"><span class="pre">classes[j]</span></code>, where <em>classes</em> are the sorted
+unique labels seen across <em>y_true</em> and <em>y_pred</em>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Confusion matrix, dtype <code class="docutils literal notranslate"><span class="pre">torch.long</span></code>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>torch.Tensor, shape (n_classes, n_classes)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="artificial_dataset.metrics.ClassifierMetrics.f1_score">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">f1_score</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#artificial_dataset.metrics.ClassifierMetrics.f1_score" title="Link to this definition">#</a></dt>
+<dd><p>Macro-averaged F1 score across all classes.</p>
+<p>F1 for class <em>c</em> is the harmonic mean of its precision and recall.
+Classes where both are <code class="docutils literal notranslate"><span class="pre">0</span></code> contribute <code class="docutils literal notranslate"><span class="pre">0</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Macro-averaged F1 score in <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="artificial_dataset.metrics.ClassifierMetrics.from_anomaly_indices">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_anomaly_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_samples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">true_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pred_indices</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/artificial_dataset/metrics.html#ClassifierMetrics.from_anomaly_indices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#artificial_dataset.metrics.ClassifierMetrics.from_anomaly_indices" title="Link to this definition">#</a></dt>
+<dd><p>Create metrics from anomaly index positions.</p>
+<p>Both <em>true_indices</em> and <em>pred_indices</em> specify the positions of the
+positive (anomaly) class.  Binary label vectors of length <em>n_samples</em>
+are constructed: <code class="docutils literal notranslate"><span class="pre">0</span></code> for normal and <code class="docutils literal notranslate"><span class="pre">1</span></code> for anomalous.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_samples</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Total number of samples.</p></li>
+<li><p><strong>true_indices</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – Index positions of the true anomalies.</p></li>
+<li><p><strong>pred_indices</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – Index positions of the predicted anomalies.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Backed by binary label vectors derived from the index positions.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Self</span></code></span></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If <em>n_samples</em> is not positive or any index is outside
+    <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">n_samples)</span></code>.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">ClassifierMetrics</span><span class="o">.</span><span class="n">from_anomaly_indices</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">n_samples</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">true_indices</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">pred_indices</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]),</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">round</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">accuracy</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="go">0.8</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="artificial_dataset.metrics.ClassifierMetrics.precision">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">precision</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#artificial_dataset.metrics.ClassifierMetrics.precision" title="Link to this definition">#</a></dt>
+<dd><p>Macro-averaged precision across all classes.</p>
+<p>Precision for class <em>c</em> is <code class="docutils literal notranslate"><span class="pre">TP_c</span> <span class="pre">/</span> <span class="pre">(TP_c</span> <span class="pre">+</span> <span class="pre">FP_c)</span></code>.  Classes with
+no predicted samples contribute <code class="docutils literal notranslate"><span class="pre">0</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Macro-averaged precision in <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="artificial_dataset.metrics.ClassifierMetrics.recall">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">recall</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#artificial_dataset.metrics.ClassifierMetrics.recall" title="Link to this definition">#</a></dt>
+<dd><p>Macro-averaged recall across all classes.</p>
+<p>Recall for class <em>c</em> is <code class="docutils literal notranslate"><span class="pre">TP_c</span> <span class="pre">/</span> <span class="pre">(TP_c</span> <span class="pre">+</span> <span class="pre">FN_c)</span></code>.  Classes with no
+true samples contribute <code class="docutils literal notranslate"><span class="pre">0</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Macro-averaged recall in <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
 <section id="module-artificial_dataset">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-artificial_dataset" title="Link to this heading">#</a></h2>
 <p>Artificial dataset generation using signal component primitives.</p>
@@ -494,6 +657,165 @@ anomalous samples drawn from the same signal with different noise levels.</p></l
 </ul>
 <p>Both return <code class="docutils literal notranslate"><span class="pre">torch.Tensor</span></code> objects so the results integrate directly with
 PyTorch training loops.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="artificial_dataset.ClassifierMetrics">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">artificial_dataset.</span></span><span class="sig-name descname"><span class="pre">ClassifierMetrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/artificial_dataset/metrics.html#ClassifierMetrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#artificial_dataset.ClassifierMetrics" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Evaluation metrics for a classifier.</p>
+<p>Computes accuracy, macro-averaged precision, recall, F1 score, and a
+confusion matrix from predicted and ground-truth class labels.</p>
+<p>Two construction modes are supported:</p>
+<ul class="simple">
+<li><p>Constructor — supply full <code class="docutils literal notranslate"><span class="pre">y_true</span></code> / <code class="docutils literal notranslate"><span class="pre">y_pred</span></code> label tensors directly.</p></li>
+<li><p><a class="reference internal" href="#artificial_dataset.ClassifierMetrics.from_anomaly_indices" title="artificial_dataset.ClassifierMetrics.from_anomaly_indices"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_anomaly_indices()</span></code></a> — supply the index positions of the positive
+(anomalous) samples as a <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.Tensor</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>; binary
+label vectors are built internally.</p></li>
+</ul>
+<p>All per-class metrics are macro-averaged over every class that appears in
+either <em>y_true</em> or <em>y_pred</em>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y_true</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></span>) – Ground-truth class labels, dtype <code class="docutils literal notranslate"><span class="pre">torch.long</span></code>.</p></li>
+<li><p><strong>y_pred</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></span>) – Predicted class labels, dtype <code class="docutils literal notranslate"><span class="pre">torch.long</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If <em>y_true</em> and <em>y_pred</em> differ in length, are not 1-D, or are empty.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y_true</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y_pred</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">ClassifierMetrics</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">round</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">accuracy</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="go">0.8</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">confusion_matrix</span>
+<span class="go">tensor([[2, 1],</span>
+<span class="go">        [0, 2]])</span>
+</pre></div>
+</div>
+<dl class="py property">
+<dt class="sig sig-object py" id="artificial_dataset.ClassifierMetrics.accuracy">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">accuracy</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#artificial_dataset.ClassifierMetrics.accuracy" title="Link to this definition">#</a></dt>
+<dd><p>Fraction of correctly classified samples.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Accuracy in <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="artificial_dataset.ClassifierMetrics.confusion_matrix">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">confusion_matrix</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tensor</span></span><a class="headerlink" href="#artificial_dataset.ClassifierMetrics.confusion_matrix" title="Link to this definition">#</a></dt>
+<dd><p>Confusion matrix of shape <code class="docutils literal notranslate"><span class="pre">(n_classes,</span> <span class="pre">n_classes)</span></code>.</p>
+<p>Entry <code class="docutils literal notranslate"><span class="pre">[i,</span> <span class="pre">j]</span></code> counts samples whose true class is <code class="docutils literal notranslate"><span class="pre">classes[i]</span></code>
+and predicted class is <code class="docutils literal notranslate"><span class="pre">classes[j]</span></code>, where <em>classes</em> are the sorted
+unique labels seen across <em>y_true</em> and <em>y_pred</em>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Confusion matrix, dtype <code class="docutils literal notranslate"><span class="pre">torch.long</span></code>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>torch.Tensor, shape (n_classes, n_classes)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="artificial_dataset.ClassifierMetrics.f1_score">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">f1_score</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#artificial_dataset.ClassifierMetrics.f1_score" title="Link to this definition">#</a></dt>
+<dd><p>Macro-averaged F1 score across all classes.</p>
+<p>F1 for class <em>c</em> is the harmonic mean of its precision and recall.
+Classes where both are <code class="docutils literal notranslate"><span class="pre">0</span></code> contribute <code class="docutils literal notranslate"><span class="pre">0</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Macro-averaged F1 score in <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="artificial_dataset.ClassifierMetrics.from_anomaly_indices">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_anomaly_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_samples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">true_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pred_indices</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/artificial_dataset/metrics.html#ClassifierMetrics.from_anomaly_indices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#artificial_dataset.ClassifierMetrics.from_anomaly_indices" title="Link to this definition">#</a></dt>
+<dd><p>Create metrics from anomaly index positions.</p>
+<p>Both <em>true_indices</em> and <em>pred_indices</em> specify the positions of the
+positive (anomaly) class.  Binary label vectors of length <em>n_samples</em>
+are constructed: <code class="docutils literal notranslate"><span class="pre">0</span></code> for normal and <code class="docutils literal notranslate"><span class="pre">1</span></code> for anomalous.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_samples</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Total number of samples.</p></li>
+<li><p><strong>true_indices</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – Index positions of the true anomalies.</p></li>
+<li><p><strong>pred_indices</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>) – Index positions of the predicted anomalies.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Backed by binary label vectors derived from the index positions.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Self</span></code></span></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If <em>n_samples</em> is not positive or any index is outside
+    <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">n_samples)</span></code>.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">ClassifierMetrics</span><span class="o">.</span><span class="n">from_anomaly_indices</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">n_samples</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">true_indices</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">pred_indices</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]),</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">round</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">accuracy</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="go">0.8</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="artificial_dataset.ClassifierMetrics.precision">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">precision</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#artificial_dataset.ClassifierMetrics.precision" title="Link to this definition">#</a></dt>
+<dd><p>Macro-averaged precision across all classes.</p>
+<p>Precision for class <em>c</em> is <code class="docutils literal notranslate"><span class="pre">TP_c</span> <span class="pre">/</span> <span class="pre">(TP_c</span> <span class="pre">+</span> <span class="pre">FP_c)</span></code>.  Classes with
+no predicted samples contribute <code class="docutils literal notranslate"><span class="pre">0</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Macro-averaged precision in <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="artificial_dataset.ClassifierMetrics.recall">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">recall</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#artificial_dataset.ClassifierMetrics.recall" title="Link to this definition">#</a></dt>
+<dd><p>Macro-averaged recall across all classes.</p>
+<p>Recall for class <em>c</em> is <code class="docutils literal notranslate"><span class="pre">TP_c</span> <span class="pre">/</span> <span class="pre">(TP_c</span> <span class="pre">+</span> <span class="pre">FN_c)</span></code>.  Classes with no
+true samples contribute <code class="docutils literal notranslate"><span class="pre">0</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Macro-averaged recall in <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="artificial_dataset.compose">
 <span class="sig-prename descclassname"><span class="pre">artificial_dataset.</span></span><span class="sig-name descname"><span class="pre">compose</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/artificial_dataset/_components.html#compose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#artificial_dataset.compose" title="Link to this definition">#</a></dt>
@@ -758,7 +1080,28 @@ contains the corresponding signal value (components + noise).</p></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#artificial_dataset.classification.make_classification"><code class="docutils literal notranslate"><span class="pre">make_classification()</span></code></a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-artificial_dataset.metrics">artificial_dataset.metrics module</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#artificial_dataset.metrics.ClassifierMetrics"><code class="docutils literal notranslate"><span class="pre">ClassifierMetrics</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#artificial_dataset.metrics.ClassifierMetrics.accuracy"><code class="docutils literal notranslate"><span class="pre">ClassifierMetrics.accuracy</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#artificial_dataset.metrics.ClassifierMetrics.confusion_matrix"><code class="docutils literal notranslate"><span class="pre">ClassifierMetrics.confusion_matrix</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#artificial_dataset.metrics.ClassifierMetrics.f1_score"><code class="docutils literal notranslate"><span class="pre">ClassifierMetrics.f1_score</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#artificial_dataset.metrics.ClassifierMetrics.from_anomaly_indices"><code class="docutils literal notranslate"><span class="pre">ClassifierMetrics.from_anomaly_indices()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#artificial_dataset.metrics.ClassifierMetrics.precision"><code class="docutils literal notranslate"><span class="pre">ClassifierMetrics.precision</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#artificial_dataset.metrics.ClassifierMetrics.recall"><code class="docutils literal notranslate"><span class="pre">ClassifierMetrics.recall</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-artificial_dataset">Module contents</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#artificial_dataset.ClassifierMetrics"><code class="docutils literal notranslate"><span class="pre">ClassifierMetrics</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#artificial_dataset.ClassifierMetrics.accuracy"><code class="docutils literal notranslate"><span class="pre">ClassifierMetrics.accuracy</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#artificial_dataset.ClassifierMetrics.confusion_matrix"><code class="docutils literal notranslate"><span class="pre">ClassifierMetrics.confusion_matrix</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#artificial_dataset.ClassifierMetrics.f1_score"><code class="docutils literal notranslate"><span class="pre">ClassifierMetrics.f1_score</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#artificial_dataset.ClassifierMetrics.from_anomaly_indices"><code class="docutils literal notranslate"><span class="pre">ClassifierMetrics.from_anomaly_indices()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#artificial_dataset.ClassifierMetrics.precision"><code class="docutils literal notranslate"><span class="pre">ClassifierMetrics.precision</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#artificial_dataset.ClassifierMetrics.recall"><code class="docutils literal notranslate"><span class="pre">ClassifierMetrics.recall</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#artificial_dataset.compose"><code class="docutils literal notranslate"><span class="pre">compose()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#artificial_dataset.gaussian_noise"><code class="docutils literal notranslate"><span class="pre">gaussian_noise()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#artificial_dataset.linear"><code class="docutils literal notranslate"><span class="pre">linear()</span></code></a></li>

@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>artificial_dataset.anomaly &#8212; artificial-dataset 0.2.0 documentation</title>
+    <title>artificial_dataset.anomaly &#8212; artificial-dataset 0.3.0 documentation</title>
   
   
   
@@ -26,18 +26,18 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=0790524f97105ba85085" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=0790524f97105ba85085" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../_static/scripts/fontawesome.js?digest=0790524f97105ba85085"></script>
+  <script defer src="../../_static/scripts/fontawesome.js?digest=a95f357e85573c9b56d5"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=0790524f97105ba85085" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
 
-    <script src="../../_static/documentation_options.js?v=938c9ccc"></script>
+    <script src="../../_static/documentation_options.js?v=e259d695"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/artificial_dataset/anomaly';</script>
@@ -46,7 +46,7 @@
     <link rel="search" title="Search" href="../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.2.0" />
+  <meta name="docsearch:version" content="0.3.0" />
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -114,7 +114,7 @@
   
   
   
-    <p class="title logo__title">artificial-dataset 0.2.0 documentation</p>
+    <p class="title logo__title">artificial-dataset 0.3.0 documentation</p>
   
 </a></div>
     
@@ -345,137 +345,333 @@
                 <article class="bd-article">
                   
   <h1>Source code for artificial_dataset.anomaly</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Anomaly detection dataset generator built from signal components.&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;Anomaly detection dataset generator built from signal components.</span>
+
+<span class="sd">The generator produces a single multivariate time series of shape ``(m, T)``:</span>
+<span class="sd">``m`` channels, each of length ``T``.  Every channel shares a smooth baseline</span>
+<span class="sd">(a superposition of :mod:`~artificial_dataset._components` signals) plus</span>
+<span class="sd">Gaussian measurement noise.  A configurable number of positive triangular</span>
+<span class="sd">spikes are added on top: each spike event shares its centre and width across</span>
+<span class="sd">all channels, while every channel responds with its own random amplitude.</span>
+<span class="sd">Spikes are always additive and positive, so an anomaly is always a peak that</span>
+<span class="sd">rises above the baseline.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">overload</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">artificial_dataset._components</span><span class="w"> </span><span class="kn">import</span> <span class="n">compose</span><span class="p">,</span> <span class="n">gaussian_noise</span>
 
 <span class="n">_DEFAULT_CHANNEL_PARAMS</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="p">{</span>
-        <span class="s2">&quot;sinusoidal&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;amplitude&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;frequency&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;phase&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">},</span>
-        <span class="s2">&quot;linear&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;slope&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s2">&quot;intercept&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">},</span>
-    <span class="p">}</span>
+    <span class="p">{</span><span class="s2">&quot;sinusoidal&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;amplitude&quot;</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span> <span class="s2">&quot;frequency&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;phase&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">}}</span>
 <span class="p">]</span>
+
+
+<div class="viewcode-block" id="SpikeParams">
+<a class="viewcode-back" href="../../api/artificial_dataset.html#artificial_dataset.anomaly.SpikeParams">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SpikeParams</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Configuration of the random positive anomaly spikes.</span>
+
+<span class="sd">    The series receives a random number of spike *events*.  Every event has a</span>
+<span class="sd">    shared centre and width across channels, while its amplitude is sampled</span>
+<span class="sd">    independently per channel, so all channels react to the same event with</span>
+<span class="sd">    different magnitudes.  Every value is drawn uniformly from the inclusive</span>
+<span class="sd">    range it controls, making the spikes random yet fully configurable.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    amplitude_range : tuple[float, float]</span>
+<span class="sd">        Inclusive ``(min, max)`` peak height of a spike, sampled per channel.</span>
+<span class="sd">        Values are positive so spikes always rise above the baseline.</span>
+<span class="sd">    width_range : tuple[int, int]</span>
+<span class="sd">        Inclusive ``(min, max)`` half-width ``w`` of a spike in samples; the</span>
+<span class="sd">        triangular bump spans ``[centre - w, centre + w]``.</span>
+<span class="sd">    count_range : tuple[int, int]</span>
+<span class="sd">        Inclusive ``(min, max)`` number of spike events in the series.</span>
+<span class="sd">    margin : int</span>
+<span class="sd">        Minimum distance (in samples) kept between a spike centre and either</span>
+<span class="sd">        end of the series, so spikes are not clipped at the boundaries.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">amplitude_range</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">7.0</span><span class="p">)</span>
+    <span class="n">width_range</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+    <span class="n">count_range</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+    <span class="n">margin</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span></div>
+
+
+
+<div class="viewcode-block" id="AnomalyDataset">
+<a class="viewcode-back" href="../../api/artificial_dataset.html#artificial_dataset.anomaly.AnomalyDataset">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AnomalyDataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A single multivariate anomaly-detection time series.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    y : torch.Tensor, shape (m, T)</span>
+<span class="sd">        Observed signal values for ``m`` channels, each of length ``T``.</span>
+<span class="sd">        ``float32``.</span>
+<span class="sd">    labels : torch.Tensor, shape (T,)</span>
+<span class="sd">        Per-timestep anomaly mask: ``1`` where the timestep falls inside the</span>
+<span class="sd">        support of a spike, ``0`` otherwise, dtype ``torch.long``.</span>
+<span class="sd">    t : torch.Tensor, shape (T,)</span>
+<span class="sd">        Shared time grid on which every channel baseline is evaluated.</span>
+<span class="sd">    peak_indices : torch.Tensor, shape (k,)</span>
+<span class="sd">        Ground-truth spike-event centres as sample positions into the series,</span>
+<span class="sd">        dtype ``torch.long`` and sorted ascending.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">y</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
+    <span class="n">labels</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
+    <span class="n">t</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
+    <span class="n">peak_indices</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
+
+<div class="viewcode-block" id="AnomalyDataset.split">
+<a class="viewcode-back" href="../../api/artificial_dataset.html#artificial_dataset.anomaly.AnomalyDataset.split">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">split</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fractions</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;AnomalySplits&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Split the series along the time axis into train, val, and test.</span>
+
+<span class="sd">        The timeline is partitioned contiguously *from the beginning*: the</span>
+<span class="sd">        first ``fractions[0]`` of the ``T`` timesteps go to ``train``, the next</span>
+<span class="sd">        ``fractions[1]`` to ``val``, and the remainder to ``test``.  Each</span>
+<span class="sd">        subset&#39;s ``peak_indices`` are filtered to the spikes whose centre falls</span>
+<span class="sd">        in that window and re-based to local sample positions.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fractions : tuple[float, float, float]</span>
+<span class="sd">            ``(train, val, test)`` fractions; must sum to ``1`` (within a</span>
+<span class="sd">            small tolerance).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        AnomalySplits</span>
+<span class="sd">            The three contiguous time segments, each an :class:`AnomalyDataset`.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the fractions do not sum to ``1``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">f_train</span><span class="p">,</span> <span class="n">f_val</span><span class="p">,</span> <span class="n">f_test</span> <span class="o">=</span> <span class="n">fractions</span>
+        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">f_train</span> <span class="o">+</span> <span class="n">f_val</span> <span class="o">+</span> <span class="n">f_test</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1e-6</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;fractions must sum to 1, got </span><span class="si">{</span><span class="n">fractions</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">t_len</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">n_train</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">f_train</span> <span class="o">*</span> <span class="n">t_len</span><span class="p">)</span>
+        <span class="n">n_val</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">f_val</span> <span class="o">*</span> <span class="n">t_len</span><span class="p">)</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">_subset</span><span class="p">(</span><span class="n">lo</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">hi</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AnomalyDataset</span><span class="p">:</span>
+            <span class="n">peaks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">peak_indices</span>
+            <span class="n">in_window</span> <span class="o">=</span> <span class="p">(</span><span class="n">peaks</span> <span class="o">&gt;=</span> <span class="n">lo</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">peaks</span> <span class="o">&lt;</span> <span class="n">hi</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">AnomalyDataset</span><span class="p">(</span>
+                <span class="n">y</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[:,</span> <span class="n">lo</span><span class="p">:</span><span class="n">hi</span><span class="p">],</span>
+                <span class="n">labels</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="n">lo</span><span class="p">:</span><span class="n">hi</span><span class="p">],</span>
+                <span class="n">t</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">[</span><span class="n">lo</span><span class="p">:</span><span class="n">hi</span><span class="p">],</span>
+                <span class="n">peak_indices</span><span class="o">=</span><span class="n">peaks</span><span class="p">[</span><span class="n">in_window</span><span class="p">]</span> <span class="o">-</span> <span class="n">lo</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">AnomalySplits</span><span class="p">(</span>
+            <span class="n">train</span><span class="o">=</span><span class="n">_subset</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_train</span><span class="p">),</span>
+            <span class="n">val</span><span class="o">=</span><span class="n">_subset</span><span class="p">(</span><span class="n">n_train</span><span class="p">,</span> <span class="n">n_train</span> <span class="o">+</span> <span class="n">n_val</span><span class="p">),</span>
+            <span class="n">test</span><span class="o">=</span><span class="n">_subset</span><span class="p">(</span><span class="n">n_train</span> <span class="o">+</span> <span class="n">n_val</span><span class="p">,</span> <span class="n">t_len</span><span class="p">),</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="AnomalySplits">
+<a class="viewcode-back" href="../../api/artificial_dataset.html#artificial_dataset.anomaly.AnomalySplits">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AnomalySplits</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Train/validation/test partition of an :class:`AnomalyDataset`.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    train, val, test : AnomalyDataset</span>
+<span class="sd">        The three disjoint time segments, cut contiguously from the beginning</span>
+<span class="sd">        of the timeline.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">train</span><span class="p">:</span> <span class="n">AnomalyDataset</span>
+    <span class="n">val</span><span class="p">:</span> <span class="n">AnomalyDataset</span>
+    <span class="n">test</span><span class="p">:</span> <span class="n">AnomalyDataset</span></div>
+
+
+
+<span class="nd">@overload</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">make_anomaly_dataset</span><span class="p">(</span>
+    <span class="n">series_length</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">noise_std</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">x_range</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">channel_params</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">spike_params</span><span class="p">:</span> <span class="n">SpikeParams</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">split</span><span class="p">:</span> <span class="kc">None</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">random_state</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AnomalyDataset</span><span class="p">:</span> <span class="o">...</span>
+
+
+<span class="nd">@overload</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">make_anomaly_dataset</span><span class="p">(</span>
+    <span class="n">series_length</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">noise_std</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">x_range</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">channel_params</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">spike_params</span><span class="p">:</span> <span class="n">SpikeParams</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">split</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+    <span class="n">random_state</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AnomalySplits</span><span class="p">:</span> <span class="o">...</span>
 
 
 <div class="viewcode-block" id="make_anomaly_dataset">
 <a class="viewcode-back" href="../../api/artificial_dataset.html#artificial_dataset.anomaly.make_anomaly_dataset">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">make_anomaly_dataset</span><span class="p">(</span>
-    <span class="n">n_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
-    <span class="n">anomaly_fraction</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
-    <span class="n">noise_std</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
-    <span class="n">x_range</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">),</span>
+    <span class="n">series_length</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="n">noise_std</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.4</span><span class="p">,</span>
+    <span class="n">x_range</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">6.0</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">),</span>
     <span class="n">channel_params</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">anomaly_scale</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">6.0</span><span class="p">,</span>
+    <span class="n">spike_params</span><span class="p">:</span> <span class="n">SpikeParams</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">split</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">random_state</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate a multi-channel anomaly detection dataset from signal components.</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AnomalyDataset</span> <span class="o">|</span> <span class="n">AnomalySplits</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate a single multivariate anomaly-detection time series.</span>
 
-<span class="sd">    Normal samples follow a smooth signal built from a combination of</span>
-<span class="sd">    linear, polynomial, and sinusoidal components with small Gaussian</span>
-<span class="sd">    noise.  Anomalous samples are drawn from the same *x* distribution</span>
-<span class="sd">    but deviate from the clean signal by a large noise term on every</span>
-<span class="sd">    channel simultaneously.</span>
+<span class="sd">    Every channel shares a smooth baseline built from</span>
+<span class="sd">    :func:`~artificial_dataset._components.compose` plus Gaussian measurement</span>
+<span class="sd">    noise.  A random number of *positive* triangular spikes are then added: each</span>
+<span class="sd">    spike event shares its centre and width across all channels, while every</span>
+<span class="sd">    channel responds with its own random amplitude sampled from *spike_params*.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    n_samples : int, optional</span>
-<span class="sd">        Total number of samples (normal + anomalous).</span>
-<span class="sd">    anomaly_fraction : float, optional</span>
-<span class="sd">        Fraction of samples marked as anomalies; must be in ``(0, 1)``.</span>
+<span class="sd">    series_length : int, optional</span>
+<span class="sd">        Length ``T`` of the time series.</span>
 <span class="sd">    noise_std : float, optional</span>
-<span class="sd">        Standard deviation of the additive Gaussian noise for normal</span>
-<span class="sd">        samples.</span>
+<span class="sd">        Standard deviation of the additive Gaussian measurement noise applied</span>
+<span class="sd">        to every channel.</span>
 <span class="sd">    x_range : tuple[float, float], optional</span>
-<span class="sd">        Closed interval ``[min, max]`` from which input values are drawn</span>
-<span class="sd">        uniformly.</span>
+<span class="sd">        Closed interval ``[min, max]`` spanned by the shared time grid on which</span>
+<span class="sd">        the baselines are evaluated.</span>
 <span class="sd">    channel_params : list[dict[str, Any]] | None, optional</span>
-<span class="sd">        One signal-parameter dict per channel.  Each dict is passed</span>
-<span class="sd">        directly to :func:`~artificial_dataset._components.compose`.</span>
-<span class="sd">        When *None*, a single default sinusoidal + linear channel is</span>
-<span class="sd">        used.</span>
-<span class="sd">    anomaly_scale : float, optional</span>
-<span class="sd">        Multiplier applied to *noise_std* for anomalous samples, so an</span>
-<span class="sd">        anomaly deviates from the clean signal by roughly</span>
-<span class="sd">        ``anomaly_scale * noise_std`` on every channel.</span>
+<span class="sd">        One signal-parameter dict per channel, each passed to</span>
+<span class="sd">        :func:`~artificial_dataset._components.compose`.  The number of entries</span>
+<span class="sd">        sets the channel count ``m``.  When *None*, a single default</span>
+<span class="sd">        sinusoidal channel is used.</span>
+<span class="sd">    spike_params : SpikeParams | None, optional</span>
+<span class="sd">        Configuration of the random positive anomaly spikes.  When *None*, the</span>
+<span class="sd">        defaults of :class:`SpikeParams` are used.</span>
+<span class="sd">    split : tuple[float, float, float] | None, optional</span>
+<span class="sd">        When given, the ``(train, val, test)`` fractions used to split the</span>
+<span class="sd">        series along the time axis *from the beginning*; the function then</span>
+<span class="sd">        returns an :class:`AnomalySplits`.  When *None*, a single</span>
+<span class="sd">        :class:`AnomalyDataset` is returned.</span>
 <span class="sd">    random_state : int | None, optional</span>
 <span class="sd">        Seed passed to :func:`torch.manual_seed` for reproducibility.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    x : torch.Tensor, shape (n_samples,)</span>
-<span class="sd">        Sampled input coordinates; intended for plotting only and not</span>
-<span class="sd">        required during classification.</span>
-<span class="sd">    y : torch.Tensor, shape (n_samples, n_channels)</span>
-<span class="sd">        Observed signal values.  Column *c* corresponds to</span>
-<span class="sd">        ``channel_params[c]``.</span>
-<span class="sd">    labels : torch.Tensor, shape (n_samples,)</span>
-<span class="sd">        Class labels: ``0`` for normal samples, ``1`` for anomalies,</span>
-<span class="sd">        dtype ``torch.long``.</span>
-
-<span class="sd">    Raises</span>
-<span class="sd">    ------</span>
-<span class="sd">    ValueError</span>
-<span class="sd">        If *anomaly_fraction* is not strictly inside ``(0, 1)``.</span>
+<span class="sd">    AnomalyDataset or AnomalySplits</span>
+<span class="sd">        An :class:`AnomalyDataset` when *split* is *None*, otherwise an</span>
+<span class="sd">        :class:`AnomalySplits` holding the three time segments.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; x, y, labels = make_anomaly_dataset(</span>
-<span class="sd">    ...     n_samples=500, anomaly_fraction=0.1, random_state=0</span>
+<span class="sd">    &gt;&gt;&gt; data = make_anomaly_dataset(series_length=200, random_state=0)</span>
+<span class="sd">    &gt;&gt;&gt; data.y.shape, data.labels.shape, data.t.shape</span>
+<span class="sd">    (torch.Size([1, 200]), torch.Size([200]), torch.Size([200]))</span>
+<span class="sd">    &gt;&gt;&gt; bool((data.labels[data.peak_indices] == 1).all())</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; splits = make_anomaly_dataset(</span>
+<span class="sd">    ...     series_length=200, split=(0.5, 0.25, 0.25), random_state=0</span>
 <span class="sd">    ... )</span>
-<span class="sd">    &gt;&gt;&gt; x.shape, y.shape, labels.shape</span>
-<span class="sd">    (torch.Size([500]), torch.Size([500, 1]), torch.Size([500]))</span>
-<span class="sd">    &gt;&gt;&gt; int((labels == 1).sum())</span>
-<span class="sd">    50</span>
+<span class="sd">    &gt;&gt;&gt; splits.train.y.shape[1], splits.val.y.shape[1], splits.test.y.shape[1]</span>
+<span class="sd">    (100, 50, 50)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="mf">0.0</span> <span class="o">&lt;</span> <span class="n">anomaly_fraction</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;anomaly_fraction must be in (0, 1), got </span><span class="si">{</span><span class="n">anomaly_fraction</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
     <span class="k">if</span> <span class="n">random_state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="n">random_state</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">channel_params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">channel_params</span> <span class="o">=</span> <span class="n">_DEFAULT_CHANNEL_PARAMS</span>
+    <span class="k">if</span> <span class="n">spike_params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">spike_params</span> <span class="o">=</span> <span class="n">SpikeParams</span><span class="p">()</span>
 
-    <span class="n">n_anomalies</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">n_samples</span> <span class="o">*</span> <span class="n">anomaly_fraction</span><span class="p">)</span>
-    <span class="n">n_normal</span> <span class="o">=</span> <span class="n">n_samples</span> <span class="o">-</span> <span class="n">n_anomalies</span>
+    <span class="n">t_len</span> <span class="o">=</span> <span class="n">series_length</span>
     <span class="n">x_min</span><span class="p">,</span> <span class="n">x_max</span> <span class="o">=</span> <span class="n">x_range</span>
 
-    <span class="n">x_normal</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">n_normal</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">x_max</span> <span class="o">-</span> <span class="n">x_min</span><span class="p">)</span> <span class="o">+</span> <span class="n">x_min</span>
-    <span class="n">x_anomaly</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">n_anomalies</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">x_max</span> <span class="o">-</span> <span class="n">x_min</span><span class="p">)</span> <span class="o">+</span> <span class="n">x_min</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">x_min</span><span class="p">,</span> <span class="n">x_max</span><span class="p">,</span> <span class="n">t_len</span><span class="p">)</span>
+    <span class="n">baselines</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">compose</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span> <span class="k">for</span> <span class="n">params</span> <span class="ow">in</span> <span class="n">channel_params</span><span class="p">])</span>
 
-    <span class="n">normal_channels</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">compose</span><span class="p">(</span><span class="n">x_normal</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span> <span class="o">+</span> <span class="n">gaussian_noise</span><span class="p">((</span><span class="n">n_normal</span><span class="p">,),</span> <span class="n">mean</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="n">noise_std</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">params</span> <span class="ow">in</span> <span class="n">channel_params</span>
-    <span class="p">]</span>
-    <span class="n">anomaly_channels</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">compose</span><span class="p">(</span><span class="n">x_anomaly</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
-        <span class="o">+</span> <span class="n">gaussian_noise</span><span class="p">((</span><span class="n">n_anomalies</span><span class="p">,),</span> <span class="n">mean</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="n">noise_std</span> <span class="o">*</span> <span class="n">anomaly_scale</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">params</span> <span class="ow">in</span> <span class="n">channel_params</span>
-    <span class="p">]</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">baselines</span> <span class="o">+</span> <span class="n">gaussian_noise</span><span class="p">(</span><span class="n">baselines</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">mean</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="n">noise_std</span><span class="p">)</span>
+    <span class="n">centres</span><span class="p">,</span> <span class="n">anomaly_mask</span> <span class="o">=</span> <span class="n">_add_spikes</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">spike_params</span><span class="p">)</span>
 
-    <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">x_normal</span><span class="p">,</span> <span class="n">x_anomaly</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">y</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span>
-        <span class="p">[</span>
-            <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">normal_channels</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
-            <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">anomaly_channels</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
-        <span class="p">],</span>
-        <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">labels</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span>
-        <span class="p">[</span>
-            <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_normal</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">long</span><span class="p">),</span>
-            <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">n_anomalies</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">long</span><span class="p">),</span>
-        <span class="p">],</span>
-        <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">order</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">x</span><span class="p">[</span><span class="n">order</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="n">order</span><span class="p">],</span> <span class="n">labels</span><span class="p">[</span><span class="n">order</span><span class="p">]</span></div>
+    <span class="n">labels</span> <span class="o">=</span> <span class="n">anomaly_mask</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">long</span><span class="p">)</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">AnomalyDataset</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">,</span> <span class="n">peak_indices</span><span class="o">=</span><span class="n">centres</span><span class="p">)</span>
 
+    <span class="k">if</span> <span class="n">split</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">dataset</span>
+    <span class="k">return</span> <span class="n">dataset</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">split</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_randint</span><span class="p">(</span><span class="n">low</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">high</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Draw a single integer uniformly from the inclusive range ``[low, high]``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    low, high : int</span>
+<span class="sd">        Inclusive bounds of the range.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    int</span>
+<span class="sd">        The sampled integer.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="n">high</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,))</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_add_spikes</span><span class="p">(</span>
+    <span class="n">series</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">spike_params</span><span class="p">:</span> <span class="n">SpikeParams</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add random positive triangular spikes to the series in place.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    series : torch.Tensor, shape (m, T)</span>
+<span class="sd">        The multivariate series, modified in place.</span>
+<span class="sd">    spike_params : SpikeParams</span>
+<span class="sd">        Ranges controlling the random spike amplitude, width, and count.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    centres : torch.Tensor, shape (k,)</span>
+<span class="sd">        Sorted ``LongTensor`` of spike-event centres.</span>
+<span class="sd">    mask : torch.Tensor, shape (T,)</span>
+<span class="sd">        Boolean per-timestep mask, ``True`` inside the support of any spike.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">m</span><span class="p">,</span> <span class="n">t_len</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">amp_lo</span><span class="p">,</span> <span class="n">amp_hi</span> <span class="o">=</span> <span class="n">spike_params</span><span class="o">.</span><span class="n">amplitude_range</span>
+    <span class="n">margin</span> <span class="o">=</span> <span class="n">spike_params</span><span class="o">.</span><span class="n">margin</span>
+
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">t_len</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">bool</span><span class="p">)</span>
+    <span class="n">n_events</span> <span class="o">=</span> <span class="n">_randint</span><span class="p">(</span><span class="o">*</span><span class="n">spike_params</span><span class="o">.</span><span class="n">count_range</span><span class="p">)</span>
+    <span class="n">centres</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">margin</span><span class="p">,</span> <span class="n">t_len</span> <span class="o">-</span> <span class="n">margin</span><span class="p">,</span> <span class="p">(</span><span class="n">n_events</span><span class="p">,))</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
+
+    <span class="k">for</span> <span class="n">centre</span> <span class="ow">in</span> <span class="n">centres</span><span class="o">.</span><span class="n">tolist</span><span class="p">():</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="n">_randint</span><span class="p">(</span><span class="o">*</span><span class="n">spike_params</span><span class="o">.</span><span class="n">width_range</span><span class="p">)</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">centre</span> <span class="o">-</span> <span class="n">width</span><span class="p">,</span> <span class="n">centre</span> <span class="o">+</span> <span class="n">width</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">idx</span><span class="p">[(</span><span class="n">idx</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">idx</span> <span class="o">&lt;</span> <span class="n">t_len</span><span class="p">)]</span>
+        <span class="n">profile</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="p">(</span><span class="n">idx</span> <span class="o">-</span> <span class="n">centre</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">width</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">mask</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
+            <span class="n">amplitude</span> <span class="o">=</span> <span class="n">amp_lo</span> <span class="o">+</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="o">*</span> <span class="p">(</span><span class="n">amp_hi</span> <span class="o">-</span> <span class="n">amp_lo</span><span class="p">)</span>
+            <span class="n">series</span><span class="p">[</span><span class="n">channel</span><span class="p">,</span> <span class="n">idx</span><span class="p">]</span> <span class="o">+=</span> <span class="n">amplitude</span> <span class="o">*</span> <span class="n">profile</span>
+
+    <span class="k">return</span> <span class="n">centres</span><span class="p">,</span> <span class="n">mask</span>
 </pre></div>
 
                 </article>
@@ -505,8 +701,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=0790524f97105ba85085"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -540,7 +736,7 @@
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.18.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.19.0.
 </p></div>
       
     </div>

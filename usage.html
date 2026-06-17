@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Usage &#8212; artificial-dataset 0.2.0 documentation</title>
+    <title>Usage &#8212; artificial-dataset 0.3.0 documentation</title>
   
   
   
@@ -27,18 +27,18 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=0790524f97105ba85085" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=0790524f97105ba85085" rel="stylesheet" />
+  <link href="_static/styles/theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="_static/scripts/fontawesome.js?digest=0790524f97105ba85085"></script>
+  <script defer src="_static/scripts/fontawesome.js?digest=a95f357e85573c9b56d5"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=0790524f97105ba85085" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085" />
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
 
-    <script src="_static/documentation_options.js?v=938c9ccc"></script>
+    <script src="_static/documentation_options.js?v=e259d695"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'usage';</script>
@@ -49,7 +49,7 @@
     <link rel="prev" title="Installation" href="installation.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.2.0" />
+  <meta name="docsearch:version" content="0.3.0" />
   
     
     <script src="_static/searchtools.js"></script>
@@ -117,7 +117,7 @@
   
   
   
-    <p class="title logo__title">artificial-dataset 0.2.0 documentation</p>
+    <p class="title logo__title">artificial-dataset 0.3.0 documentation</p>
   
 </a></div>
     
@@ -364,10 +364,12 @@
                   
   <section id="usage">
 <h1>Usage<a class="headerlink" href="#usage" title="Link to this heading">#</a></h1>
-<p>Both generators return <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.Tensor</span></code> objects that plug directly into a
-PyTorch <code class="xref py py-class docutils literal notranslate"><span class="pre">DataLoader</span></code>.  The anomaly generator returns
-a three-tuple <code class="docutils literal notranslate"><span class="pre">(x,</span> <span class="pre">y,</span> <span class="pre">labels)</span></code>; the classification generator returns a
-two-tuple <code class="docutils literal notranslate"><span class="pre">(X,</span> <span class="pre">y)</span></code>.</p>
+<p>Both generators produce <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.Tensor</span></code> data that plugs directly into a
+PyTorch <code class="xref py py-class docutils literal notranslate"><span class="pre">DataLoader</span></code>.  The classification generator
+returns a two-tuple <code class="docutils literal notranslate"><span class="pre">(X,</span> <span class="pre">y)</span></code>; the anomaly generator returns an
+<a class="reference internal" href="api/artificial_dataset.html#artificial_dataset.AnomalyDataset" title="artificial_dataset.AnomalyDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnomalyDataset</span></code></a> dataclass whose main field <code class="docutils literal notranslate"><span class="pre">y</span></code>
+has shape <code class="docutils literal notranslate"><span class="pre">(m,</span> <span class="pre">T)</span></code> — a single multivariate time series of <code class="docutils literal notranslate"><span class="pre">m</span></code> channels,
+each of length <code class="docutils literal notranslate"><span class="pre">T</span></code>.</p>
 <section id="classification">
 <h2>Classification<a class="headerlink" href="#classification" title="Link to this heading">#</a></h2>
 <p><a class="reference internal" href="api/artificial_dataset.html#artificial_dataset.make_classification" title="artificial_dataset.make_classification"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_classification()</span></code></a> produces a labelled multi-class
@@ -387,49 +389,96 @@ dataset.  Each class follows a distinct combination of signal components.</p>
 </section>
 <section id="anomaly-detection">
 <h2>Anomaly detection<a class="headerlink" href="#anomaly-detection" title="Link to this heading">#</a></h2>
-<p><a class="reference internal" href="api/artificial_dataset.html#artificial_dataset.make_anomaly_dataset" title="artificial_dataset.make_anomaly_dataset"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_anomaly_dataset()</span></code></a> produces a dataset of normal
-samples (label <code class="docutils literal notranslate"><span class="pre">0</span></code>) and anomalous samples (label <code class="docutils literal notranslate"><span class="pre">1</span></code>).  Anomalies deviate
-from the clean signal by a large noise term controlled by <code class="docutils literal notranslate"><span class="pre">anomaly_scale</span></code>.</p>
-<p>The function returns three tensors:</p>
+<p><a class="reference internal" href="api/artificial_dataset.html#artificial_dataset.make_anomaly_dataset" title="artificial_dataset.make_anomaly_dataset"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_anomaly_dataset()</span></code></a> produces a single multivariate
+time series.  Every channel shares a smooth baseline (a superposition of signal
+components) plus Gaussian measurement noise, and a configurable number of
+<strong>positive triangular spikes</strong> are added on top.  Anomalies are therefore always
+peaks that rise above the baseline, never one-off off-points.</p>
+<p>The function returns an <a class="reference internal" href="api/artificial_dataset.html#artificial_dataset.AnomalyDataset" title="artificial_dataset.AnomalyDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnomalyDataset</span></code></a> with:</p>
 <ul class="simple">
-<li><p><strong>x</strong> — shape <code class="docutils literal notranslate"><span class="pre">(n_samples,)</span></code>: sampled input coordinates, intended for
-plotting only and not required during classification.</p></li>
-<li><p><strong>y</strong> — shape <code class="docutils literal notranslate"><span class="pre">(n_samples,</span> <span class="pre">n_channels)</span></code>: observed signal values, one
-column per channel.</p></li>
-<li><p><strong>labels</strong> — shape <code class="docutils literal notranslate"><span class="pre">(n_samples,)</span></code>, dtype <code class="docutils literal notranslate"><span class="pre">torch.long</span></code>: <code class="docutils literal notranslate"><span class="pre">0</span></code> for normal
-samples, <code class="docutils literal notranslate"><span class="pre">1</span></code> for anomalies.</p></li>
+<li><p><strong>y</strong> — shape <code class="docutils literal notranslate"><span class="pre">(m,</span> <span class="pre">T)</span></code>, dtype <code class="docutils literal notranslate"><span class="pre">torch.float32</span></code>: the main data tensor of
+<code class="docutils literal notranslate"><span class="pre">m</span></code> channels, each of length <code class="docutils literal notranslate"><span class="pre">T</span></code>.</p></li>
+<li><p><strong>labels</strong> — shape <code class="docutils literal notranslate"><span class="pre">(T,)</span></code>, dtype <code class="docutils literal notranslate"><span class="pre">torch.long</span></code>: per-timestep anomaly mask,
+<code class="docutils literal notranslate"><span class="pre">1</span></code> inside the support of a spike and <code class="docutils literal notranslate"><span class="pre">0</span></code> elsewhere.</p></li>
+<li><p><strong>t</strong> — shape <code class="docutils literal notranslate"><span class="pre">(T,)</span></code>: the time grid the baselines are evaluated on.</p></li>
+<li><p><strong>peak_indices</strong> — a sorted <code class="docutils literal notranslate"><span class="pre">LongTensor</span></code> of the ground-truth spike-event
+centres as sample positions into the series.</p></li>
 </ul>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">artificial_dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_anomaly_dataset</span>
 
-<span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">make_anomaly_dataset</span><span class="p">(</span>
-    <span class="n">n_samples</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
-    <span class="n">anomaly_fraction</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
-    <span class="n">noise_std</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
-    <span class="n">anomaly_scale</span><span class="o">=</span><span class="mf">6.0</span><span class="p">,</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">make_anomaly_dataset</span><span class="p">(</span>
+    <span class="n">series_length</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+    <span class="n">noise_std</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span>
     <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="c1"># x:      shape (1000,)     — input coordinates for plotting</span>
-<span class="c1"># y:      shape (1000, 1)   — observed signal (one channel by default)</span>
-<span class="c1"># labels: shape (1000,)     — 0 for normal, 1 for anomaly</span>
+<span class="n">data</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">shape</span>         <span class="c1"># torch.Size([1, 1000]) — (m, T)</span>
+<span class="n">data</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">shape</span>    <span class="c1"># torch.Size([1000])    — 0 normal, 1 anomalous timestep</span>
+<span class="n">data</span><span class="o">.</span><span class="n">t</span><span class="o">.</span><span class="n">shape</span>         <span class="c1"># torch.Size([1000])    — time grid</span>
+<span class="n">data</span><span class="o">.</span><span class="n">peak_indices</span>    <span class="c1"># LongTensor of spike-event centres</span>
 </pre></div>
 </div>
 <p>Pass a list with more than one entry to <code class="docutils literal notranslate"><span class="pre">channel_params</span></code> to get multiple
-channels.  Anomalies are injected with the same scaled noise on every channel,
-so the label is consistent across the whole row:</p>
+channels.  Each spike event shares its centre and width across all channels,
+while every channel responds with its own random amplitude:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">channel_params</span> <span class="o">=</span> <span class="p">[</span>
     <span class="p">{</span><span class="s2">&quot;sinusoidal&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;amplitude&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;frequency&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;phase&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">}},</span>
     <span class="p">{</span><span class="s2">&quot;linear&quot;</span><span class="p">:</span>     <span class="p">{</span><span class="s2">&quot;slope&quot;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span> <span class="s2">&quot;intercept&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">}},</span>
 <span class="p">]</span>
 
-<span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">make_anomaly_dataset</span><span class="p">(</span>
-    <span class="n">n_samples</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span>
-    <span class="n">anomaly_fraction</span><span class="o">=</span><span class="mf">0.08</span><span class="p">,</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">make_anomaly_dataset</span><span class="p">(</span>
+    <span class="n">series_length</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span>
     <span class="n">channel_params</span><span class="o">=</span><span class="n">channel_params</span><span class="p">,</span>
     <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="c1"># y: shape (600, 2)  — two independent signal channels</span>
+<span class="c1"># data.y: shape (2, 600)  — two channels</span>
 </pre></div>
 </div>
+<section id="configuring-the-spikes">
+<h3>Configuring the spikes<a class="headerlink" href="#configuring-the-spikes" title="Link to this heading">#</a></h3>
+<p>The spikes are random but fully configurable through the
+<a class="reference internal" href="api/artificial_dataset.html#artificial_dataset.SpikeParams" title="artificial_dataset.SpikeParams"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpikeParams</span></code></a> dataclass.  Every property is drawn
+uniformly from an inclusive range:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">artificial_dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpikeParams</span><span class="p">,</span> <span class="n">make_anomaly_dataset</span>
+
+<span class="n">spikes</span> <span class="o">=</span> <span class="n">SpikeParams</span><span class="p">(</span>
+    <span class="n">amplitude_range</span><span class="o">=</span><span class="p">(</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">7.0</span><span class="p">),</span>  <span class="c1"># peak height, sampled per channel</span>
+    <span class="n">width_range</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>          <span class="c1"># triangular half-width in samples</span>
+    <span class="n">count_range</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span>          <span class="c1"># number of spike events in the series</span>
+    <span class="n">margin</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>                   <span class="c1"># keep spikes this far from either end</span>
+<span class="p">)</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">make_anomaly_dataset</span><span class="p">(</span>
+    <span class="n">series_length</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+    <span class="n">spike_params</span><span class="o">=</span><span class="n">spikes</span><span class="p">,</span>
+    <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="train-validation-test-splitting">
+<h3>Train / validation / test splitting<a class="headerlink" href="#train-validation-test-splitting" title="Link to this heading">#</a></h3>
+<p>Pass <code class="docutils literal notranslate"><span class="pre">split=(train,</span> <span class="pre">val,</span> <span class="pre">test)</span></code> to receive an
+<a class="reference internal" href="api/artificial_dataset.html#artificial_dataset.AnomalySplits" title="artificial_dataset.AnomalySplits"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnomalySplits</span></code></a> instead of a single dataset.  The
+timeline is cut contiguously from the beginning: the first fraction of the <code class="docutils literal notranslate"><span class="pre">T</span></code>
+timesteps becomes <code class="docutils literal notranslate"><span class="pre">train</span></code>, the next <code class="docutils literal notranslate"><span class="pre">val</span></code>, and the remainder <code class="docutils literal notranslate"><span class="pre">test</span></code>.  Each
+segment’s <code class="docutils literal notranslate"><span class="pre">peak_indices</span></code> are filtered to the spikes it contains and re-based to
+local sample positions.  The same partition is available as
+<a class="reference internal" href="api/artificial_dataset.html#artificial_dataset.AnomalyDataset.split" title="artificial_dataset.AnomalyDataset.split"><code class="xref py py-meth docutils literal notranslate"><span class="pre">split()</span></code></a> on an existing dataset:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">splits</span> <span class="o">=</span> <span class="n">make_anomaly_dataset</span><span class="p">(</span>
+    <span class="n">series_length</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+    <span class="n">split</span><span class="o">=</span><span class="p">(</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">),</span>
+    <span class="n">random_state</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">splits</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">shape</span>   <span class="c1"># torch.Size([1, 700])</span>
+<span class="n">splits</span><span class="o">.</span><span class="n">val</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">shape</span>     <span class="c1"># torch.Size([1, 150])</span>
+<span class="n">splits</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">shape</span>    <span class="c1"># torch.Size([1, 150])</span>
+
+<span class="c1"># Equivalently, split an existing dataset after the fact:</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">make_anomaly_dataset</span><span class="p">(</span><span class="n">series_length</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+<span class="n">splits</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">split</span><span class="p">((</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
 </section>
 <section id="custom-signal-shapes">
 <h2>Custom signal shapes<a class="headerlink" href="#custom-signal-shapes" title="Link to this heading">#</a></h2>
@@ -480,13 +529,15 @@ construction modes are available.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">artificial_dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClassifierMetrics</span><span class="p">,</span> <span class="n">make_anomaly_dataset</span>
 
-<span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">make_anomaly_dataset</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">anomaly_fraction</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">make_anomaly_dataset</span><span class="p">(</span><span class="n">series_length</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-<span class="n">true_indices</span> <span class="o">=</span> <span class="p">(</span><span class="n">labels</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">as_tuple</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-<span class="n">pred_indices</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span> <span class="mi">27</span><span class="p">,</span> <span class="mi">88</span><span class="p">,</span> <span class="mi">142</span><span class="p">])</span>  <span class="c1"># your model&#39;s detections</span>
+<span class="c1"># Detector flagging timesteps whose value crosses a threshold.</span>
+<span class="n">timestep_max</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">pred_indices</span> <span class="o">=</span> <span class="p">(</span><span class="n">timestep_max</span> <span class="o">&gt;</span> <span class="mf">2.0</span><span class="p">)</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">as_tuple</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">true_indices</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">labels</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">as_tuple</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 
 <span class="n">m</span> <span class="o">=</span> <span class="n">ClassifierMetrics</span><span class="o">.</span><span class="n">from_anomaly_indices</span><span class="p">(</span>
-    <span class="n">n_samples</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+    <span class="n">n_samples</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
     <span class="n">true_indices</span><span class="o">=</span><span class="n">true_indices</span><span class="p">,</span>   <span class="c1"># torch.Tensor or list[int]</span>
     <span class="n">pred_indices</span><span class="o">=</span><span class="n">pred_indices</span><span class="p">,</span>
 <span class="p">)</span>
@@ -562,7 +613,11 @@ manually using <a class="reference internal" href="api/artificial_dataset.html#a
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#classification">Classification</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#anomaly-detection">Anomaly detection</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#anomaly-detection">Anomaly detection</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configuring-the-spikes">Configuring the spikes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#train-validation-test-splitting">Train / validation / test splitting</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#custom-signal-shapes">Custom signal shapes</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#evaluating-a-classifier">Evaluating a classifier</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#low-level-components">Low-level components</a></li>
@@ -591,8 +646,8 @@ manually using <a class="reference internal" href="api/artificial_dataset.html#a
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="_static/scripts/bootstrap.js?digest=0790524f97105ba85085"></script>
-<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085"></script>
+  <script defer src="_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -626,7 +681,7 @@ manually using <a class="reference internal" href="api/artificial_dataset.html#a
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.18.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.19.0.
 </p></div>
       
     </div>

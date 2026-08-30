@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>artificial_dataset._components &#8212; artificial-dataset 0.3.0 documentation</title>
+    <title>artificial_dataset._components &#8212; artificial-dataset 0.3.1.dev40+g131fa6737 documentation</title>
   
   
   
@@ -26,18 +26,18 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../_static/scripts/fontawesome.js?digest=a95f357e85573c9b56d5"></script>
+  <script defer src="../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../_static/documentation_options.js?v=e259d695"></script>
+    <script src="../../_static/documentation_options.js?v=64084444"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/artificial_dataset/_components';</script>
@@ -46,7 +46,7 @@
     <link rel="search" title="Search" href="../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.3.0" />
+  <meta name="docsearch:version" content="0.3.1.dev40+g131fa6737" />
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -114,7 +114,7 @@
   
   
   
-    <p class="title logo__title">artificial-dataset 0.3.0 documentation</p>
+    <p class="title logo__title">artificial-dataset 0.3.1.dev40+g131fa6737 documentation</p>
   
 </a></div>
     
@@ -377,6 +377,29 @@
 
 
 
+<span class="c1"># ---------- o ----------</span>
+<span class="c1"># Basic trend functions</span>
+<div class="viewcode-block" id="constant">
+<a class="viewcode-back" href="../../api/artificial_dataset.html#artificial_dataset.constant">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">constant</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute a constant signal: ``y = value``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : torch.Tensor</span>
+<span class="sd">        Input values, used only to determine the output shape.</span>
+<span class="sd">    value : float, optional</span>
+<span class="sd">        Constant value.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    torch.Tensor</span>
+<span class="sd">        Output tensor of the same shape as *x*, filled with *value*.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span></div>
+
+
+
 <div class="viewcode-block" id="linear">
 <a class="viewcode-back" href="../../api/artificial_dataset.html#artificial_dataset.linear">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">linear</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">slope</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">intercept</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
@@ -397,6 +420,130 @@
 <span class="sd">        Output tensor of the same shape as *x*.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">slope</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">intercept</span></div>
+
+
+
+<div class="viewcode-block" id="exponential">
+<a class="viewcode-back" href="../../api/artificial_dataset.html#artificial_dataset.exponential">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">exponential</span><span class="p">(</span>
+    <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">initial_value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">growth_rate</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute an exponential signal: ``y = initial_value * exp(growth_rate * x)``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : torch.Tensor</span>
+<span class="sd">        Input values.</span>
+<span class="sd">    initial_value : float, optional</span>
+<span class="sd">        Value at ``x = 0``.</span>
+<span class="sd">    growth_rate : float, optional</span>
+<span class="sd">        Exponential growth (positive) or decay (negative) rate.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    torch.Tensor</span>
+<span class="sd">        Output tensor of the same shape as *x*.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">initial_value</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">growth_rate</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="logarithmic">
+<a class="viewcode-back" href="../../api/artificial_dataset.html#artificial_dataset.logarithmic">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">logarithmic</span><span class="p">(</span>
+    <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">scale</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">shift</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute a logarithmic signal: ``y = scale * log(x + shift)``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : torch.Tensor</span>
+<span class="sd">        Input values.</span>
+<span class="sd">    scale : float, optional</span>
+<span class="sd">        Multiplicative scale applied to the logarithm.</span>
+<span class="sd">    shift : float, optional</span>
+<span class="sd">        Additive shift applied to *x* before taking the log, keeping the</span>
+<span class="sd">        argument positive when *x* starts at ``0``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    torch.Tensor</span>
+<span class="sd">        Output tensor of the same shape as *x*.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If *shift* is not strictly positive.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">shift</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;shift must be &gt; 0 to keep log(x + shift) defined at x=0.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">scale</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">shift</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="periodic_seasonal">
+<a class="viewcode-back" href="../../api/artificial_dataset.html#artificial_dataset.periodic_seasonal">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">periodic_seasonal</span><span class="p">(</span>
+    <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">period</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>
+    <span class="n">amplitude</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">offset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">waveform</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;sine&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute a repeating pattern with an explicit period, in samples.</span>
+
+<span class="sd">    Unlike :func:`sinusoidal`, which is parameterised by frequency, this is</span>
+<span class="sd">    parameterised by *period* and supports a few common waveform shapes.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : torch.Tensor</span>
+<span class="sd">        Input values.</span>
+<span class="sd">    period : float, optional</span>
+<span class="sd">        Period of the pattern, in the same units as *x*.</span>
+<span class="sd">    amplitude : float, optional</span>
+<span class="sd">        Peak amplitude.</span>
+<span class="sd">    offset : float, optional</span>
+<span class="sd">        Constant vertical offset.</span>
+<span class="sd">    waveform : str, optional</span>
+<span class="sd">        One of ``&quot;sine&quot;``, ``&quot;square&quot;``, ``&quot;triangle&quot;``, ``&quot;sawtooth&quot;``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    torch.Tensor</span>
+<span class="sd">        Output tensor of the same shape as *x*.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If *period* is not strictly positive, or *waveform* is unrecognised.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">period</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;period must be &gt; 0.&quot;</span><span class="p">)</span>
+
+    <span class="n">phase_fraction</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">%</span> <span class="n">period</span><span class="p">)</span> <span class="o">/</span> <span class="n">period</span>  <span class="c1"># in [0, 1)</span>
+
+    <span class="k">if</span> <span class="n">waveform</span> <span class="o">==</span> <span class="s2">&quot;sine&quot;</span><span class="p">:</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">phase_fraction</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">waveform</span> <span class="o">==</span> <span class="s2">&quot;square&quot;</span><span class="p">:</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">phase_fraction</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="n">waveform</span> <span class="o">==</span> <span class="s2">&quot;triangle&quot;</span><span class="p">:</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="mi">2</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">phase_fraction</span> <span class="o">-</span> <span class="n">torch</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">phase_fraction</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)))</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">waveform</span> <span class="o">==</span> <span class="s2">&quot;sawtooth&quot;</span><span class="p">:</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">phase_fraction</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Unknown waveform &#39;</span><span class="si">{</span><span class="n">waveform</span><span class="si">}</span><span class="s2">&#39;. Choose from: sine, square, triangle, </span><span class="se">\</span>
+<span class="s2">                sawtooth.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">amplitude</span> <span class="o">*</span> <span class="n">values</span> <span class="o">+</span> <span class="n">offset</span></div>
 
 
 
@@ -454,6 +601,8 @@
 
 
 
+<span class="c1"># ---------- o ----------</span>
+<span class="c1"># Combination of basic functions</span>
 <div class="viewcode-block" id="compose">
 <a class="viewcode-back" href="../../api/artificial_dataset.html#artificial_dataset.compose">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">compose</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
@@ -461,9 +610,14 @@
 
 <span class="sd">    Recognised keys in *params* and their expected value types:</span>
 
-<span class="sd">    * ``&quot;linear&quot;``      - ``dict`` of keyword arguments for :func:`linear`</span>
-<span class="sd">    * ``&quot;polynomial&quot;``  - ``dict`` of keyword arguments for :func:`polynomial`</span>
-<span class="sd">    * ``&quot;sinusoidal&quot;``  - ``dict`` of keyword arguments for :func:`sinusoidal`</span>
+<span class="sd">    * ``&quot;constant&quot;``          - ``dict`` of keyword arguments for :func:`constant`</span>
+<span class="sd">    * ``&quot;linear&quot;``            - ``dict`` of keyword arguments for :func:`linear`</span>
+<span class="sd">    * ``&quot;exponential&quot;``       - ``dict`` of keyword arguments for :func:`exponential`</span>
+<span class="sd">    * ``&quot;logarithmic&quot;``       - ``dict`` of keyword arguments for :func:`logarithmic`</span>
+<span class="sd">    * ``&quot;periodic_seasonal&quot;`` - ``dict`` of keyword arguments for :func:</span>
+<span class="sd">                                                                  `periodic_seasonal`</span>
+<span class="sd">    * ``&quot;polynomial&quot;``        - ``dict`` of keyword arguments for :func:`polynomial`</span>
+<span class="sd">    * ``&quot;sinusoidal&quot;``        - ``dict`` of keyword arguments for :func:`sinusoidal`</span>
 
 <span class="sd">    Unknown keys are silently ignored so callers can attach metadata to the</span>
 <span class="sd">    same dict without interfering with signal generation.</span>
@@ -481,13 +635,74 @@
 <span class="sd">        Superposed signal of the same shape as *x*.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">signal</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;constant&quot;</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+        <span class="n">signal</span> <span class="o">=</span> <span class="n">signal</span> <span class="o">+</span> <span class="n">constant</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;constant&quot;</span><span class="p">])</span>
     <span class="k">if</span> <span class="s2">&quot;linear&quot;</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
         <span class="n">signal</span> <span class="o">=</span> <span class="n">signal</span> <span class="o">+</span> <span class="n">linear</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;linear&quot;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="s2">&quot;exponential&quot;</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+        <span class="n">signal</span> <span class="o">=</span> <span class="n">signal</span> <span class="o">+</span> <span class="n">exponential</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;exponential&quot;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="s2">&quot;logarithmic&quot;</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+        <span class="n">signal</span> <span class="o">=</span> <span class="n">signal</span> <span class="o">+</span> <span class="n">logarithmic</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;logarithmic&quot;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="s2">&quot;periodic_seasonal&quot;</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+        <span class="n">signal</span> <span class="o">=</span> <span class="n">signal</span> <span class="o">+</span> <span class="n">periodic_seasonal</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;periodic_seasonal&quot;</span><span class="p">])</span>
     <span class="k">if</span> <span class="s2">&quot;polynomial&quot;</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
         <span class="n">signal</span> <span class="o">=</span> <span class="n">signal</span> <span class="o">+</span> <span class="n">polynomial</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;polynomial&quot;</span><span class="p">])</span>
     <span class="k">if</span> <span class="s2">&quot;sinusoidal&quot;</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
         <span class="n">signal</span> <span class="o">=</span> <span class="n">signal</span> <span class="o">+</span> <span class="n">sinusoidal</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;sinusoidal&quot;</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">signal</span></div>
+
+
+
+<div class="viewcode-block" id="compose_weighted">
+<a class="viewcode-back" href="../../api/artificial_dataset.html#artificial_dataset.compose_weighted">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compose_weighted</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">components</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Evaluate a weighted sum of several composed signals at *x*.</span>
+
+<span class="sd">    Unlike :func:`compose`, which sums at most one instance of each</span>
+<span class="sd">    component type (dict keys must be unique), *compose_weighted* accepts a</span>
+<span class="sd">    list, so the same component type can appear more than once — e.g. two</span>
+<span class="sd">    sinusoids at different frequencies — each contributing with its own</span>
+<span class="sd">    weight.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : torch.Tensor</span>
+<span class="sd">        Input values, shape ``(n,)``.</span>
+<span class="sd">    components : list[dict[str, Any]]</span>
+<span class="sd">        One entry per term in the sum. Each entry is a ``params`` dict as</span>
+<span class="sd">        understood by :func:`compose` (e.g. ``{&quot;sinusoidal&quot;: {...}}``), plus</span>
+<span class="sd">        an optional ``&quot;weight&quot;`` key (default ``1.0``) scaling that term.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    torch.Tensor</span>
+<span class="sd">        Superposed signal of the same shape as *x*.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If *components* is empty.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import torch</span>
+<span class="sd">    &gt;&gt;&gt; x = torch.linspace(0, 10, steps=50)</span>
+<span class="sd">    &gt;&gt;&gt; y = compose_weighted(x, [</span>
+<span class="sd">    ...     {&quot;linear&quot;: {&quot;slope&quot;: 0.2}},</span>
+<span class="sd">    ...     {&quot;sinusoidal&quot;: {&quot;amplitude&quot;: 1.0, &quot;frequency&quot;: 0.5}, &quot;weight&quot;: 0.5},</span>
+<span class="sd">    ... ])</span>
+<span class="sd">    &gt;&gt;&gt; y.shape</span>
+<span class="sd">    torch.Size([50])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">components</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;components must contain at least one entry.&quot;</span><span class="p">)</span>
+
+    <span class="n">total</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">components</span><span class="p">:</span>
+        <span class="n">weight</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;weight&quot;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">entry</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">key</span> <span class="o">!=</span> <span class="s2">&quot;weight&quot;</span><span class="p">}</span>
+        <span class="n">total</span> <span class="o">=</span> <span class="n">total</span> <span class="o">+</span> <span class="n">weight</span> <span class="o">*</span> <span class="n">compose</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">total</span></div>
 
 </pre></div>
 
@@ -518,8 +733,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -553,7 +768,7 @@
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.19.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
 </p></div>
       
     </div>

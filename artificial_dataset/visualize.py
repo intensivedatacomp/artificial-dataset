@@ -43,7 +43,6 @@ def plot_series(
     series: SyntheticSeries,
     title: str | None = None,
     ax: Axes | None = None,
-    show: bool = True,
 ) -> Figure:
     """
     Plot a SyntheticSeries: the 1D signal against time (a.u.), with anomalies marked.
@@ -51,6 +50,12 @@ def plot_series(
     Single anomalous points are drawn as scatter markers; contiguous
     anomalous runs (e.g. a level shift or dropout span) are additionally
     shaded to make their extent visible.
+
+    Builds and returns the figure without displaying it. In a notebook,
+    the figure is shown automatically (either as the cell's returned value,
+    or, with `%matplotlib inline`, because it is still open at the end of
+    cell execution); in a script, call `plt.show()` on the result if you
+    want to display it.
 
     Parameters
     ----------
@@ -62,10 +67,6 @@ def plot_series(
         `series.meta`, if present.
     ax : matplotlib.axes.Axes, optional
         Axes to draw into. A new figure/axes is created when omitted.
-    show : bool, default True
-        Whether to call `plt.show()` before returning. Set to False when
-        embedding the figure elsewhere (e.g. saving it or using it in a
-        notebook without display side effects).
 
     Returns
     -------
@@ -101,8 +102,5 @@ def plot_series(
     ax.set_title(title or series.meta.get("function_type", "Synthetic series"))
     ax.legend(loc="upper right")
     fig.tight_layout()
-
-    if show:
-        plt.show()
 
     return fig

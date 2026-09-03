@@ -1,6 +1,7 @@
 """Unit tests for plotting utilities."""
 
 from collections.abc import Generator
+from pathlib import Path
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -11,8 +12,12 @@ from matplotlib.figure import Figure
 matplotlib.use("Agg")
 
 from artificial_dataset.injectors import add_level_shift, add_point_anomalies
-from artificial_dataset.series import SyntheticSeries, make_series
-from artificial_dataset.visualize import _anomaly_spans, plot_series
+from artificial_dataset.series import (
+    SyntheticSeries,
+    SyntheticSeriesSplits,
+    make_series,
+)
+from artificial_dataset.visualize import _anomaly_spans, plot_series, plot_splits
 
 
 @pytest.fixture
@@ -25,6 +30,24 @@ def base_series() -> SyntheticSeries:
         noise_std=0.05,
         random_state=0,
     )
+
+
+@pytest.fixture
+def base_splits() -> SyntheticSeriesSplits:
+    """Fixture returning an even 3-way split with one anomaly per partition."""
+    series = make_series(
+        series_length=90,
+        function_type="sinusoidal",
+        function_params={"amplitude": 2.0, "frequency": 0.05},
+        noise_std=0.05,
+        random_state=0,
+    )
+    # One level-shift anomaly at the same relative offset in each third of
+    # the series, so every partition ends up with exactly one anomaly.
+    series = add_level_shift(series, start_idx=5, duration=3, random_state=0)
+    series = add_level_shift(series, start_idx=35, duration=3, random_state=0)
+    series = add_level_shift(series, start_idx=65, duration=3, random_state=0)
+    return series.split((1 / 3, 1 / 3, 1 / 3))
 
 
 @pytest.fixture(autouse=True)
@@ -196,3 +219,120 @@ def test_plot_series_does_not_call_plt_show(
     monkeypatch.setattr(plt, "show", lambda: calls.append(True))
     plot_series(base_series)
     assert calls == []
+
+
+# ---------- plot_splits ----------
+
+
+def test_plot_splits_returns_figure(base_splits: SyntheticSeriesSplits) -> None:
+    """plot_splits returns a matplotlib Figure instance."""
+    fig = plot_splits(base_splits)
+    assert isinstance(fig, Figure)
+
+
+def test_plot_splits_creates_three_stacked_subplots(
+    base_splits: SyntheticSeriesSplits,
+) -> None:
+    """plot_splits produces exactly three axes, one per partition."""
+    fig = plot_splits(base_splits)
+    assert len(fig.axes) == 3
+
+
+def test_plot_splits_default_titles_are_train_val_test(
+    base_splits: SyntheticSeriesSplits,
+) -> None:
+    """Without explicit titles, subplots are labeled Train/Validation/Test in order."""
+    fig = plot_splits(base_splits)
+    titles = [ax.get_title() for ax in fig.axes]
+    assert titles == ["Train", "Validation", "Test"]
+
+
+def test_plot_splits_custom_titles_are_applied_in_order(
+    base_splits: SyntheticSeriesSplits,
+) -> None:
+    """Custom titles are assigned to subplots in (train, val, test) order."""
+    fig = plot_splits(base_splits, titles=("Tanító", "Validáció", "Teszt"))
+    titles = [ax.get_title() for ax in fig.axes]
+    assert titles == ["Tanító", "Validáció", "Teszt"]
+
+
+def test_plot_splits_each_subplot_shows_its_own_partition(
+    base_splits: SyntheticSeriesSplits,
+) -> None:
+    """Each subplot's line data matches the corresponding partition, in order."""
+    fig = plot_splits(base_splits)
+    parts = (base_splits.train, base_splits.val, base_splits.test)
+
+    for ax, series in zip(fig.axes, parts, strict=True):
+        x_plotted, y_plotted = ax.lines[0].get_data()
+        assert x_plotted == pytest.approx(series.x.detach().cpu().numpy())
+        assert y_plotted == pytest.approx(series.y.detach().cpu().numpy())
+
+
+def test_plot_splits_each_subplot_shows_its_own_anomaly(
+    base_splits: SyntheticSeriesSplits,
+) -> None:
+    """Each partition's anomaly is drawn in its own subplot, not smeared across all."""
+    fig = plot_splits(base_splits)
+    for ax in fig.axes:
+        assert len(ax.collections) >= 1  # scatter marker
+        assert len(ax.patches) >= 1  # shaded span
+
+
+def test_plot_splits_sharey_true_gives_matching_ylim_by_default(
+    base_splits: SyntheticSeriesSplits,
+) -> None:
+    """With the default sharey=True, all three subplots share the same y-limits."""
+    fig = plot_splits(base_splits)
+    ylims = {ax.get_ylim() for ax in fig.axes}
+    assert len(ylims) == 1
+
+
+def test_plot_splits_sharey_false_is_accepted(
+    base_splits: SyntheticSeriesSplits,
+) -> None:
+    """sharey=False is accepted and still produces a complete 3-axes figure."""
+    fig = plot_splits(base_splits, sharey=False)
+    assert len(fig.axes) == 3
+
+
+def test_plot_splits_figsize_is_applied(base_splits: SyntheticSeriesSplits) -> None:
+    """The figsize argument controls the resulting figure's size in inches."""
+    fig = plot_splits(base_splits, figsize=(7.0, 9.0))
+    assert fig.get_size_inches() == pytest.approx((7.0, 9.0))
+
+
+def test_plot_splits_save_path_writes_a_file(
+    base_splits: SyntheticSeriesSplits, tmp_path: Path
+) -> None:
+    """When save_path is given, the figure is saved to that path."""
+    out_path = tmp_path / "splits.png"
+    plot_splits(base_splits, save_path=out_path)
+    assert out_path.exists()
+    assert out_path.stat().st_size > 0
+
+
+def test_plot_splits_without_save_path_writes_no_file(
+    base_splits: SyntheticSeriesSplits, tmp_path: Path
+) -> None:
+    """Without save_path, plot_splits has no filesystem side effects."""
+    plot_splits(base_splits)
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_plot_splits_does_not_call_plt_show(
+    base_splits: SyntheticSeriesSplits, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """plot_splits never calls plt.show() itself; display is left to the caller."""
+    calls = []
+    monkeypatch.setattr(plt, "show", lambda: calls.append(True))
+    plot_splits(base_splits)
+    assert calls == []
+
+
+def test_plot_splits_mismatched_titles_length_raises(
+    base_splits: SyntheticSeriesSplits,
+) -> None:
+    """A titles sequence that isn't length 3 raises, rather than silently truncating."""
+    with pytest.raises(ValueError, match="zip"):
+        plot_splits(base_splits, titles=("Only", "Two"))  # type: ignore[arg-type]

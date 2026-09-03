@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>artificial_dataset package &#8212; artificial-dataset 0.3.1 documentation</title>
+    <title>artificial_dataset package &#8212; artificial-dataset 0.3.2.dev6+g0df562294 documentation</title>
   
   
   
@@ -38,7 +38,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../_static/documentation_options.js?v=4621528c"></script>
+    <script src="../_static/documentation_options.js?v=dc2fa768"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'api/artificial_dataset';</script>
@@ -48,7 +48,7 @@
     <link rel="prev" title="Modules" href="modules.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.3.1" />
+  <meta name="docsearch:version" content="0.3.2.dev6+g0df562294" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -116,7 +116,7 @@
   
   
   
-    <p class="title logo__title">artificial-dataset 0.3.1 documentation</p>
+    <p class="title logo__title">artificial-dataset 0.3.2.dev6+g0df562294 documentation</p>
   
 </a></div>
     
@@ -1799,11 +1799,16 @@ parameterised by <em>period</em> and supports a few common waveform shapes.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="artificial_dataset.plot_series">
-<span class="sig-prename descclassname"><span class="pre">artificial_dataset.</span></span><span class="sig-name descname"><span class="pre">plot_series</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/artificial_dataset/visualize.html#plot_series"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#artificial_dataset.plot_series" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">artificial_dataset.</span></span><span class="sig-name descname"><span class="pre">plot_series</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/artificial_dataset/visualize.html#plot_series"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#artificial_dataset.plot_series" title="Link to this definition">#</a></dt>
 <dd><p>Plot a SyntheticSeries: the 1D signal against time (a.u.), with anomalies marked.</p>
 <p>Single anomalous points are drawn as scatter markers; contiguous
 anomalous runs (e.g. a level shift or dropout span) are additionally
 shaded to make their extent visible.</p>
+<p>Builds and returns the figure without displaying it. In a notebook,
+the figure is shown automatically (either as the cell’s returned value,
+or, with <cite>%matplotlib inline</cite>, because it is still open at the end of
+cell execution); in a script, call <cite>plt.show()</cite> on the result if you
+want to display it.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1812,9 +1817,6 @@ one or more <cite>add_*</cite> injectors have been applied).</p></li>
 <li><p><strong>title</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Plot title. Defaults to the <cite>function_type</cite> recorded in
 <cite>series.meta</cite>, if present.</p></li>
 <li><p><strong>ax</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Axes to draw into. A new figure/axes is created when omitted.</p></li>
-<li><p><strong>show</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to call <cite>plt.show()</cite> before returning. Set to False when
-embedding the figure elsewhere (e.g. saving it or using it in a
-notebook without display side effects).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>

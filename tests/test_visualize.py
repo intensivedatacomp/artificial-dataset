@@ -57,6 +57,24 @@ def _close_figures() -> Generator[None, None, None]:
     plt.close("all")
 
 
+def test_plot_series_save_path_writes_a_file(
+    base_series: SyntheticSeries, tmp_path: Path
+) -> None:
+    """When save_path is given, the figure is saved to that path."""
+    out_path = tmp_path / "series.png"
+    plot_series(base_series, save_path=out_path)
+    assert out_path.exists()
+    assert out_path.stat().st_size > 0
+
+
+def test_plot_series_without_save_path_writes_no_file(
+    base_series: SyntheticSeries, tmp_path: Path
+) -> None:
+    """Without save_path, plot_series has no filesystem side effects."""
+    plot_series(base_series)
+    assert list(tmp_path.iterdir()) == []
+
+
 # ---------- _anomaly_spans ----------
 
 

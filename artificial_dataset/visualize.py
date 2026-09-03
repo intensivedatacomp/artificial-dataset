@@ -47,6 +47,7 @@ def plot_series(
     series: SyntheticSeries,
     title: str | None = None,
     ax: Axes | None = None,
+    save_path: str | os.PathLike[str] | None = None,
 ) -> Figure:
     """
     Plot a SyntheticSeries: the 1D signal against time (a.u.), with anomalies marked.
@@ -106,6 +107,9 @@ def plot_series(
     ax.set_title(title or series.meta.get("function_type", "Synthetic series"))
     ax.legend(loc="upper right")
     fig.tight_layout()
+
+    if save_path is not None:
+        fig.savefig(save_path, bbox_inches="tight")
 
     return fig
 

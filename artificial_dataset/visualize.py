@@ -8,11 +8,15 @@ an optional, plot-only dependency: it is imported lazily so importing
 
 from __future__ import annotations
 
+import os
 from typing import TYPE_CHECKING, cast
 
 import torch
 
-from artificial_dataset.series import SyntheticSeries
+from artificial_dataset.series import (
+    SyntheticSeries,
+    SyntheticSeriesSplits,
+)
 
 if TYPE_CHECKING:
     from matplotlib.axes import Axes
@@ -102,5 +106,55 @@ def plot_series(
     ax.set_title(title or series.meta.get("function_type", "Synthetic series"))
     ax.legend(loc="upper right")
     fig.tight_layout()
+
+    return fig
+
+
+def plot_splits(
+    splits: SyntheticSeriesSplits,
+    titles: tuple[str, str, str] = ("Train", "Validation", "Test"),
+    figsize: tuple[float, float] = (11, 12),
+    sharey: bool = True,
+    save_path: str | os.PathLike[str] | None = None,
+) -> Figure:
+    """
+    Plot the train/val/test partitions of a SyntheticSeriesSplits, stacked vertically.
+
+    Each partition is drawn with `plot_series` into its own subplot of a
+    single figure, so the three segments (and any anomalies within them)
+    can be compared at a glance. Builds and returns the figure without
+    displaying it; see `plot_series` for notebook/script display notes.
+
+    Parameters
+    ----------
+    splits : SyntheticSeriesSplits
+        The partition to visualize, e.g. as returned by
+        `SyntheticSeries.split`.
+    titles : tuple of str, default ("Train", "Validation", "Test")
+        Subplot titles, in `(train, val, test)` order.
+    figsize : tuple of float, default (11, 12)
+        Overall figure size, in inches.
+    sharey : bool, default True
+        Whether all three subplots share the same y-axis scale, so the
+        partitions are directly comparable.
+    save_path : str or os.PathLike, optional
+        If given, the figure is saved to this path via `Figure.savefig`,
+        with `bbox_inches="tight"`.
+
+    Returns
+    -------
+    matplotlib.figure.Figure
+        The figure containing the three stacked subplots.
+    """
+    fig, axes = plt.subplots(3, 1, figsize=figsize, sharey=sharey)
+
+    series_by_part = (splits.train, splits.val, splits.test)
+    for ax, series, title in zip(axes, series_by_part, titles, strict=True):
+        plot_series(series, title=title, ax=ax)
+
+    fig.tight_layout()
+
+    if save_path is not None:
+        fig.savefig(save_path, bbox_inches="tight")
 
     return fig

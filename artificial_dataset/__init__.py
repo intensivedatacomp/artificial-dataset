@@ -61,7 +61,7 @@ from artificial_dataset.series import (
     SyntheticSeriesSplits,
     make_series,
 )
-from artificial_dataset.visualize import plot_series
+from artificial_dataset.visualize import plot_series, plot_splits
 
 __all__ = [
     "AnomalyDataset",
@@ -91,6 +91,7 @@ __all__ = [
     "make_series",
     "periodic_seasonal",
     "plot_series",
+    "plot_splits",
     "polynomial",
     "save_series",
     "sinusoidal",

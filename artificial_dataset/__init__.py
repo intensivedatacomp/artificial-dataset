@@ -61,7 +61,7 @@ from artificial_dataset.series import (
     SyntheticSeriesSplits,
     make_series,
 )
-from artificial_dataset.visualize import plot_series
+from artificial_dataset.visualize import plot_series, plot_splits
 
 __all__ = [
     "AnomalyDataset",

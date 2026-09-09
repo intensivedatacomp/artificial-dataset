@@ -91,6 +91,7 @@ __all__ = [
     "make_series",
     "periodic_seasonal",
     "plot_series",
+    "plot_splits",
     "polynomial",
     "save_series",
     "sinusoidal",

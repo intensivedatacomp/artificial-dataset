@@ -23,7 +23,7 @@ generators for classification and anomaly detection tasks.
 
 ## Installation
 
-Requires Python ≥ 3.12 and PyTorch ≥ 2.12.
+Requires Python ≥ 3.12, PyTorch ≥ 2.11, torchvision ≥ 0.26, and NumPy ≥ 2.0.
 
 ```bash
 git clone git@github.com:dcintlab/artificial-dataset.git

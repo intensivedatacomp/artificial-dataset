@@ -25,15 +25,66 @@ generators for classification and anomaly detection tasks.
 
 Requires Python ≥ 3.12 and PyTorch ≥ 2.12.
 
-```bash
-git clone git@github.com:dcintlab/artificial-dataset.git
-cd artificial-dataset
-pip install -e .
-```
-Install directly from Github.
+### Directly from GitHub
+
+Install the latest version directly using `pip`:
 
 ```bash
 pip install git+https://github.com/intensivedatacomp/artificial-dataset.git
+```
+
+To install with development dependencies:
+
+```bash
+pip install "artificial-dataset[dev] @ git+https://github.com/intensivedatacomp/artificial-dataset.git"
+```
+
+To pin to a specific commit hash:
+
+```bash
+pip install git+https://github.com/intensivedatacomp/artificial-dataset.git@<commit-hash>
+```
+
+To pin to a specific commit hash with development dependencies:
+
+```bash
+pip install "artificial-dataset[dev] @ git+https://github.com/intensivedatacomp/artificial-dataset.git@<commit-hash>"
+```
+
+### In `requirements.txt`
+
+Add the package with a fixed commit hash and development dependencies:
+
+```text
+artificial-dataset[dev] @ git+https://github.com/intensivedatacomp/artificial-dataset.git@<commit-hash>
+```
+
+### In `environment.yml` (Conda)
+
+Add the package under the `pip` dependencies section:
+
+```yaml
+name: my-env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python>=3.12
+  - pip
+  - pip:
+      - "artificial-dataset[dev] @ git+https://github.com/intensivedatacomp/artificial-dataset.git@<commit-hash>"
+```
+
+### From source
+
+Clone the repository and install in editable mode:
+
+```bash
+git clone https://github.com/intensivedatacomp/artificial-dataset.git
+cd artificial-dataset
+pip install -e .
+# or with development dependencies:
+pip install -e ".[dev]"
 ```
 
 ## Quick start
